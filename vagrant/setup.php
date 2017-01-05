@@ -17,7 +17,9 @@
  *      Optional. Path to the readme file
  */
 
-define('DS', DIRECTORY_SEPARATOR);
+define('DS', 			DIRECTORY_SEPARATOR);
+define('VAGRANT_JSON', 	'vagrant.json');
+define('VAGRANT_TMPL', 	'.local/vagrant/Vagrantfile-template');
 
 $defaults = [
     'project_root'  => '.',
@@ -54,25 +56,25 @@ if (isset($options['conf']) && !is_file($options['conf'])) {
     exit(1);
 }
 
-$iamota_path = (isset($options['conf']))
+$json_path = (isset($options['conf']))
 			? $options['conf']
-			: $cwd . DS . 'iamota.json';
+			: $cwd . DS . VAGRANT_JSON;
 
 /**
- * Parse the iamota config file
+ * Parse the vagrant.json config blob
  */
-$iamota_file = trim(file_get_contents( $iamota_path ));
-$iamota 	= json_decode($iamota_file, true);
+$json_str 	= trim(file_get_contents( $json_path ));
+$json 		= json_decode($json_str, true);
 
 /**
  * Create final config values
  */
-$config 	= array_merge($defaults, $iamota['vagrantfile']);
+$config 	= array_merge($defaults, $json);
 
 /**
  * Get config path from either cli argument or readme file in current dir.
  */
-$template 	= file_get_contents($cwd.DS.'.local'.DS.'vagrant'.DS.'Vagrantfile-template');
+$template 	= file_get_contents($cwd.DS.str_replace('/', DS, VAGRANT_TMPL));
 
 /**
  * Prompt users for input and parse by looping over a set of config descriptions
