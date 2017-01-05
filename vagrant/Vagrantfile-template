@@ -1,0 +1,88 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure('2') do |config|
+  # All Vagrant configuration is done here. The most common configuration
+  # options are documented and commented below. For a complete reference,
+  # please see the online documentation at vagrantup.com.
+
+  # Every Vagrant virtual environment requires a basebox.
+  config.vm.box = "ubuntu/xenial64"
+
+  # Forward a port from the guest to the host, which allows for outside
+  # computers to access the VM, whereas host only networking does not.
+  # Host Port = your computer & Guest Port = nginx inside vagrant
+
+  config.vm.network "forwarded_port", guest: 80, host: %%HTTP_PORT%%, auto_correct: true
+  config.vm.network "forwarded_port", guest: 3306, host: %%MYSQL_PORT%%, auto_correct: true
+
+  # Working directory for project
+  config.vm.synced_folder "%%PROJECT_ROOT%%",
+                          "/www/current",
+                          create: true,
+                          owner: "www-data",
+                          group: "www-data"
+
+  # VirtualBox is the hypervisor we are using.
+  config.vm.provider "virtualbox" do |vb|
+    # Host memory available to Vagrant VM
+    vb.memory    = %%VBOX_MEMORY%%
+    # Host CPU threads available to VM
+    vb.cpus      = %%VBOX_CPUS%%
+    # Other Virtualbox options
+    vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+  end
+
+  # Provisioning with Chef Solo by specifying a cookbooks path and
+  # a data_bags path (all relative to this Vagrantfile), then adding
+  # some recipes to the runlist.
+  config.vm.provision "chef_solo" do |chef|
+
+    # Storing all Chef provisioning files in .local
+    chef.cookbooks_path = ".local/cookbooks"
+    #chef.data_bags_path = ".local/data_bags"
+
+    # Choose which recipes to run
+    chef.add_recipe 'localdev'
+    chef.add_recipe 'localdev::env'
+    chef.add_recipe 'localdev::debug'
+    chef.add_recipe 'localdev::mysql'
+    chef.add_recipe 'localdev::nginx'
+    chef.add_recipe 'localdev::php-70-fpm'
+    %%EXTRA_RECIPES%%
+
+    # Pass Chef custom JSON
+    chef.json = {
+      :localdev => {
+        #:project_path => '/www/current/'
+      },
+      :nginx => {
+        :server_name => '%%HTTP_HOST%%',
+      },
+      :mysql_server => {
+         # :root_password => 'root',
+      },
+      :mysql => {
+         # :user     => 'localdev',
+         # :password => 'localdev',
+         # :database => 'localdev',
+      },
+      :php => {
+        :request_slowlog_timeout => '10s',
+        # :xdebug_halt_level => 'E_WARNING|E_NOTICE|E_USER_WARNING|E_USER_NOTICE',
+      }
+    }
+
+  end
+
+  config.vm.provision :shell, privileged: false, run: "always", inline: <<-EOF
+    sudo service mysql start
+    sudo service nginx start
+    sudo service php7.0-fpm start
+    echo "BAM!"
+    echo "Your Localdev Vagrant Box provisioned!"
+    echo "Local server address is http://localhost:%%HTTP_PORT%%"
+  EOF
+
+end

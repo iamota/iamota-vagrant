@@ -1,0 +1,7 @@
+name 'localdev'
+maintainer 'iamota'
+maintainer_email 'mike.walker@iamota.com'
+license 'all_rights'
+description 'Installs/Configures localdev'
+long_description 'Installs/Configures localdev'
+version '0.1.0'

@@ -1,0 +1,28 @@
+# Chef generated my.cnf
+
+[client]
+<% if @charset %>
+default-character-set          = <%= @charset %>
+<% end %>
+<% if @port %>
+port                           = <%= @port %>
+<% end %>
+
+[mysql]
+<% if @charset %>
+default-character-set          = <%= @charset %>
+<% end %>
+
+[mysqld]
+<% if @bind_address %>
+bind-address                   = <%= @bind_address %>
+<% end %>
+<% if @port %>
+port                           = <%= @port %>
+<% end %>
+<% @mysqld_options.each do |option,value| %>
+<%= option %>                  = <%= value %>
+<% end %>
+<% if @error_log %>
+log-error                      = <%= @error_log %>
+<% end %>

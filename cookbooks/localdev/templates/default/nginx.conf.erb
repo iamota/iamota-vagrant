@@ -1,0 +1,275 @@
+# ===============================================================================================
+# Define Environment variable
+# ===============================================================================================
+map $http_host $environment {
+    hostnames;
+
+    default             dev;
+}
+
+server {
+    # ===============================================================================================
+    # CONFIGURE SERVER
+    # ===============================================================================================
+
+    listen              <%= @server_port %>;
+    server_name         <%= @server_name %> localdev;
+    root                <%= @server_root %>;
+
+    charset             utf-8;
+
+    access_log          <%= @log_path %>/localdev.access.log;
+    error_log           <%= @log_path %>/localdev.error.log;
+
+    index               index.php;
+
+    # ===============================================================================================
+    # MAGENTO CONFIGURATION
+    # ===============================================================================================
+
+    # Base Setup and Security
+
+    location /shop {
+        index index.html index.php;
+        try_files $uri $uri/ @handler;
+
+        ## Catch 404s that try_files miss
+        if (!-e $request_filename) { rewrite /shop /shop/index.php last; }
+
+        ## Store code is defined in administration > Configuration > Manage Stores
+        fastcgi_param MAGE_RUN_CODE shop;
+        fastcgi_param MAGE_RUN_TYPE website;
+
+        # By default, only handle fcgi without caching
+        # include /mnt/nginx/iamota_components/current/nginx/magento_fcgi.conf;
+    }
+
+    # 404s are handled by front controller
+    location @magefc {
+        rewrite /shop /shop/index.php;
+    }
+
+
+    # ===============================================================================================
+    # AWS CLOUDFRONT
+    # ===============================================================================================
+
+    # Dynamic CloudFront Rewrites (Codeship will replace variables during compile)
+    #
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # !!! IMPORTANT
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    # !!! Add to the CodeShip deploy script the following:
+    # !!!
+    # !!! sed -e "s/\\${AWS_APP_CLOUDFRONT}/${AWS_APP_CLOUDFRONT}/" nginx.conf
+    # !!! sed -e "s/\\${AWS_MAGENTO_CLOUDFRONT}/${AWS_MAGENTO_CLOUDFRONT}/" nginx.conf
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    # set $AWS_APP_CLOUDFRONT dynamic-deploy-failed;
+    # set $AWS_MAGENTO_CLOUDFRONT dynamic-deploy-failed;
+    # if ($environment != 'local') {
+    #     rewrite "^/wp-content/uploads/(.*)$" https://${AWS_APP_CLOUDFRONT}.cloudfront.net$request_uri? last;
+    #     rewrite "^/shop/media/(.*)$" https://${AWS_MAGENTO_CLOUDFRONT}.cloudfront.net/$1? last;
+    # }
+
+    # ===============================================================================================
+    # RESTRICTIONS
+    # ===============================================================================================
+
+    # Global restrictions configuration file.
+    # Designed to be included in any server {} block.</p>
+    location = /favicon.ico {
+        log_not_found off;
+        access_log off;
+    }
+
+    location = /robots.txt {
+        allow all;
+        log_not_found off;
+        access_log off;
+    }
+
+    # Deny all attempts to access hidden files such as .htaccess, .htpasswd, .DS_Store (Mac).
+    # Keep logging the requests to parse later (or to pass to firewall utilities such as fail2ban)
+    location ~ /\. {
+        deny all;
+    }
+
+    # Deny access to any files with a .php extension in the uploads directory
+    # Works in sub-directory installs and also in multisite network
+    # Keep logging the requests to parse later (or to pass to firewall utilities such as fail2ban)
+    location ~* /(?:uploads|files)/.*\.php$ {
+        deny all;
+    }
+
+    # Serve cross-domain Ajax requests, disabled by default.
+    # enable-cors.org
+    # code.google.com/p/html5security/wiki/CrossOriginRequestSecurity
+    # add_header "Access-Control-Allow-Origin" "*";
+
+
+    # ===============================================================================================
+    # GENERAL
+    # ===============================================================================================
+
+    # Force the latest IE version
+    # Use ChromeFrame if it's installed for a better experience for the poor IE folk
+    add_header "X-UA-Compatible" "IE=Edge,chrome=1";
+
+
+    # ===============================================================================================
+    # WORDPRESS SINGLE BLOG
+    # ===============================================================================================
+
+    # WordPress single blog rules.
+    # Designed to be included in any server {} block.
+
+    # This order might seem weird - this is attempted to match last if rules below fail.
+    # http://wiki.nginx.org/HttpCoreModule
+    # DISABLED - W3TC HANDLES IT BELOW INSTEAD
+    #location / {
+    #   try_files $uri $uri/ /index.php?$args;
+    #}
+
+    # Add trailing slash to */wp-admin requests.
+    rewrite /wp-admin$ $scheme://$host$uri/ permanent;
+
+    # Directives to send expires headers and turn off 404 error logging.
+    location ~* ^.+\.(ogg|ogv|svg|svgz|eot|otf|woff|mp4|ttf|rss|atom|jpg|jpeg|gif|png|ico|zip|tgz|gz|rar|bz2|doc|xls|exe|ppt|tar|mid|midi|wav|bmp|rtf)$ {
+           access_log off; log_not_found off; expires max;
+    }
+
+    # Uncomment one of the lines below for the appropriate caching plugin (if used).
+    #include global/wordpress-wp-super-cache.conf;
+    #include global/wordpress-w3-total-cache.conf;
+
+
+    # ===============================================================================================
+    # WORDPRESS SEO BY YOAST
+    # ===============================================================================================
+
+    #Yoast sitemap
+    location ~ ([^/]*)sitemap(.*)\.x(m|s)l$ {
+        ## this redirects sitemap.xml to /sitemap_index.xml
+        rewrite ^/sitemap\.xml$ /sitemap_index.xml permanent;
+
+        ## this makes the XML sitemaps work
+        rewrite ^/([a-z]+)?-?sitemap\.xsl$ /index.php?xsl=$1 last;
+        rewrite ^/sitemap_index\.xml$ /index.php?sitemap=1 last;
+        rewrite ^/([^/]+?)-sitemap([0-9]+)?\.xml$ /index.php?sitemap=$1&sitemap_n=$2 last;
+
+        ## The following lines are optional for the premium extensions
+
+        ## News SEO
+        rewrite ^/news-sitemap\.xml$ /index.php?sitemap=wpseo_news last;
+
+        ## Local SEO
+        rewrite ^/locations\.kml$ /index.php?sitemap=wpseo_local_kml last;
+        rewrite ^/geo-sitemap\.xml$ /index.php?sitemap=wpseo_local last;
+
+        ## Video SEO
+        rewrite ^/video-sitemap\.xsl$ /index.php?xsl=video last;
+    }
+
+
+    # ===============================================================================================
+    # W3TOTALCACHE WORDPRESS
+    # ===============================================================================================
+
+    #W3 TOTAL CACHE CHECK
+    set $cache_uri $request_uri;
+
+    # POST requests and urls with a query string should always go to PHP
+    if ($request_method = POST) {
+            set $cache_uri 'null cache';
+    }
+    if ($query_string != "") {
+            set $cache_uri 'null cache';
+    }
+
+    # Don't cache uris containing the following segments
+    if ($request_uri ~* "(/wp-admin/|/xmlrpc.php|/wp-(app|cron|login|register|mail).php|wp-.*.php|/feed/|index.php|wp-comments-popup.php|wp-links-opml.php|wp-locations.php|sitemap(_index)?.xml|[a-z0-9_-]+-sitemap([0-9]+)?.xml)") {
+            set $cache_uri 'null cache';
+    }
+
+    # Don't use the cache for logged in users or recent commenters
+    if ($http_cookie ~* "comment_author|wordpress_[a-f0-9]+|wp-postpass|wordpress_logged_in") {
+            set $cache_uri 'null cache';
+    }
+
+    # BEGIN W3TC CDN
+    # Whitelist Cross-Domain Font Requests
+    location ~* \.(?:ttf|ttc|otf|eot|woff|font.css)$ {
+        add_header "Access-Control-Allow-Origin" "*";
+        expires 1M;
+        access_log off;
+        add_header Cache-Control "public";
+    }
+    # END W3TC CDN
+
+    # BEGIN W3TC Browser Cache
+    # Per: http://codex.wordpress.org/Nginx
+    # Nginx can handle gzip & browser cache automatically so better leave that part to nginx.
+    gzip on;
+    gzip_types text/css text/x-component application/x-javascript application/javascript text/javascript text/x-js text/richtext image/svg+xml text/plain text/xsd text/xsl text/xml image/x-icon;
+    location ~ \.(css|htc|less|js|js2|js3|js4)$ {
+        expires 31536000s;
+        add_header Pragma "public";
+        add_header Cache-Control "max-age=31536000, public";
+    }
+    location ~ \.(html|htm|rtf|rtx|svg|svgz|txt|xsd|xsl|xml)$ {
+        expires 3600s;
+        add_header Pragma "public";
+        add_header Cache-Control "max-age=3600, public";
+    }
+    location ~ \.(asf|asx|wax|wmv|wmx|avi|bmp|class|divx|doc|docx|eot|exe|gif|gz|gzip|ico|jpg|jpeg|jpe|json|mdb|mid|midi|mov|qt|mp3|m4a|mp4|m4v|mpeg|mpg|mpe|mpp|otf|odb|odc|odf|odg|odp|ods|odt|ogg|pdf|png|pot|pps|ppt|pptx|ra|ram|svg|svgz|swf|tar|tif|tiff|ttf|ttc|wav|wma|wri|woff|xla|xls|xlsx|xlt|xlw|zip)$ {
+        expires 31536000s;
+        add_header Pragma "public";
+        add_header Cache-Control "max-age=31536000, public";
+    }
+    # END W3TC Browser Cache
+
+
+    # ===============================================================================================
+    # W3TOTALCACHE WORDPRESS SINGLE BLOG
+    # ===============================================================================================
+
+    # Use cached or actual file if they exists, otherwise pass request to WordPress
+    location / {
+            try_files <%= @wp_content_relative_path %>/w3tc/pgcache/$cache_uri/_index.html $uri $uri/ /index.php?$args ;
+    }
+
+
+    # ===============================================================================================
+    # STANDARD NGINX CONFIG
+    # ===============================================================================================
+
+    #!!! IMPORTANT !!! We need to hide the password file from prying eyes
+    # This will deny access to any hidden file (beginning with a .period)
+    location ~ /\. { deny  all; }
+
+    # Block all svn access
+    if ($request_uri ~* ^.*\.svn.*$) {
+        return 404;
+    }
+
+    # Block all git access
+    if ($request_uri ~* ^.*\.git.*$) {
+        return 404;
+    }
+
+    # Block all twig access
+    if ($request_uri ~* ^.*\.twig.*$) {
+        return 404;
+    }
+
+    # Pass the PHP scripts to FastCGI server listening on the php-fpm socket
+    location ~* \.php$ {
+        fastcgi_index   index.php;
+        fastcgi_pass    127.0.0.1:9000;
+        include         fastcgi_params;
+        fastcgi_param   SCRIPT_FILENAME    $document_root$fastcgi_script_name;
+        fastcgi_param   SCRIPT_NAME        $fastcgi_script_name;
+    }
+
+}
