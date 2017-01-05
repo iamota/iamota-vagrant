@@ -45,8 +45,13 @@ $args = array_map(
             array_keys($defaults)
         );
 $shortopts 	= "";
-$longopts  	= ["config::", "output::", "dry-run"] + $args;
+$longopts  	= ["conf::", "echo", "dry-run"] + $args;
 $options 	= getopt($shortopts, $longopts);
+
+/**
+ * Print Vagrantfile to STDOUT without user prompts or other meta
+ */
+$echo = (isset($options['echo']));
 
 /**
  * Get config path from either cli argument or readme file in current dir.
@@ -80,27 +85,45 @@ $template 	= file_get_contents($cwd.DS.str_replace('/', DS, VAGRANT_TMPL));
  * Prompt users for input and parse by looping over a set of config descriptions
  * and their related config slug.
  */
-fwrite(STDOUT, "\n\nConfiguring your Vagrant instance. Hit enter to use [default] value.\n");
+if (!$echo) {
 
-function parse_input ( $input, $default ) {
-    return (!empty(trim($input))) ? $input : $default;
+	function parse_input ( $input, $default ) {
+	    return (!empty(trim($input))) ? $input : $default;
+	}
+
+	fwrite(STDOUT, "\n\nConfiguring your Vagrant instance. Hit enter to use [default] value.\n");
+
+	foreach ([
+
+	    'project_root'  => 'Project root dir',
+	    'http_port'     => 'Project HTTP Port',
+	    'http_host'     => 'HTTP Hostname',
+	    'mysql_port'    => 'MySQL Port',
+	    'vbox_memory'   => 'Virtual Box Guest Memory',
+	    'vbox_cpus'     => 'Virtual Box Guest CPUs',
+
+	  	] as $var => $desc ) {
+
+	    fwrite(STDOUT, sprintf('%s [%s]: ', $desc, $config[$var]));
+	    $input = fgets(STDIN);
+		$config[$var] = parse_input($input, $config[$var]);
+	}
 }
 
-foreach ([
-
-    'project_root'  => 'Project root dir',
-    'http_port'     => 'Project HTTP Port',
-    'http_host'     => 'HTTP Hostname',
-    'mysql_port'    => 'MySQL Port',
-    'vbox_memory'   => 'Virtual Box Guest Memory',
-    'vbox_cpus'     => 'Virtual Box Guest CPUs',
-
-  	] as $var => $desc ) {
-
-    fwrite(STDOUT, sprintf('%s [%s]: ', $desc, $config[$var]));
-    $input = fgets(STDIN);
-	$config[$var] = parse_input($input, $config[$var]);
+/**
+ * Handle Extra Chef Recipes
+ */
+function parse_recipes( $recipes ) {
+    $arr = explode(' ', $recipes);
+	$arr = array_map(
+            function($item){ return "chef.add_recipe '{$item}'"; },
+            $arr
+        );
+	$str = implode("\n    ", $arr);
+	return $str;
 }
+
+$config['extra_recipes'] = parse_recipes($config['extra_recipes']);
 
 /**
  * Read Vagrantfile template and replace placeholders with config values.
@@ -114,7 +137,15 @@ $replace = array_values($config);
 $vagrantfile = str_replace($search, $replace, $template);
 
 /**
- * Output the new Vagrantfile contents
+ * If echo-only, output the new Vagrantfile contents to STDOUT and exit
+ */
+if ($echo) {
+	fwrite(STDOUT, $vagrantfile);
+	exit(0);
+}
+
+/**
+ * Otherwise output the new Vagrantfile contents + helper info to STDOUT
  */
 fwrite(STDOUT, "\nNew Vagrantfile");
 fwrite(STDOUT, "\n========================================");

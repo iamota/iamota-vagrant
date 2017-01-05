@@ -17,8 +17,6 @@ Add a file named `vagrant.json` to your project. See below for formatting.
 {
 	"name": "project-name",
 	"http_port": "8080",
-	"extra_recipes": [
-		"localdev::geoip"
-	]
+	"extra_recipes": "localdev::geoip localdev::something-else"
 }
 ```
