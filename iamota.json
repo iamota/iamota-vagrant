@@ -1,0 +1,8 @@
+{
+	"name": "localdev",
+	"vagrantfile": {
+		"http_port": "8080"
+	},
+	"extra_recipes": [
+	]
+}

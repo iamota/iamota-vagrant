@@ -10,11 +10,16 @@ Add a file named `vagrant.json` to your project. See below for formatting.
 
 ## Configuring Vagrant
 
-## vagrant.json format
+
+
+## iamota.json format
 ```
 {
-	"name": "project-name",
-	"http_port": "8080",
-	"extra_recipes" : []
+	"name": "localdev",
+	"vagrantfile": {
+		"http_port": "8080"
+	},
+	"extra_recipes": [
+	]
 }
 ```
