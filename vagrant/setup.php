@@ -105,7 +105,7 @@ foreach ([
  * Output to screen.
  */
 $search = array_map(
-            function($key){ return '%%'.$key.'%%'; },
+            function($key){ return '%%'.strtoupper($key).'%%'; },
             array_keys($config)
         );
 $replace = array_values($config);
