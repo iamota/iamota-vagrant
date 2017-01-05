@@ -48,15 +48,15 @@ end
 
 
 # Make MySQL less secure because development.
-[ 'SET GLOBAL validate_password_length = 0',
-  'SET GLOBAL validate_password_number_count = 0',
-  'SET GLOBAL validate_password_mixed_case_count = 0',
-  'SET GLOBAL validate_password_special_char_count = 0',
-  'SET GLOBAL validate_password_policy = LOW' ].each do |cmd|
-    execute cmd do
-        command "mysql -e '#{cmd}'"
-    end
-end
+# [ 'SET GLOBAL validate_password_length = 0',
+#   'SET GLOBAL validate_password_number_count = 0',
+#   'SET GLOBAL validate_password_mixed_case_count = 0',
+#   'SET GLOBAL validate_password_special_char_count = 0',
+#   'SET GLOBAL validate_password_policy = LOW' ].each do |cmd|
+#     execute cmd do
+#         command "mysql -e '#{cmd}'"
+#     end
+# end
 
 execute 'Create database' do
   command "mysql -e 'CREATE DATABASE IF NOT EXISTS `#{node[:mysql][:database]}`'"

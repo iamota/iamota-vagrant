@@ -6,3 +6,4 @@ draft-code
 npm-debug.log
 Vagrantfile
 ubuntu*.log
+logs/
