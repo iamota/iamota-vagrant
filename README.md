@@ -40,3 +40,7 @@ Under the `extras` section, modify to reflect the following:
 
 **Important Note:** You _must_ modify the `http_port` to reflect the port assigned to the project. Project port assignments are cataloged on Google Drive:
 
+https://docs.google.com/a/iamota.com/spreadsheets/d/1pFm1RVFnsfQsNyC2YpmfQZtubdgDO7mOfymduogZDRA/edit?usp=sharing
+
+
+
