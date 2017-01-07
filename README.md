@@ -2,9 +2,9 @@
 
 Standardized local development environment using Vagrant.
 
-## Configuring a new project
+## Installing the local environment
 
-**Step 1:** Modify your `composer.json` to add the following:
+Modify your `composer.json` to add the following:
 
 Under `repositories` section, add:
 
@@ -30,17 +30,20 @@ Under the `extras` section, modify to reflect the following:
         }
     }
 
-**Step 2:** Add a file named `vagrant.json` to your project. See below for formatting.
 
+## Setting up the project Vagrant box
+
+Add a file named `vagrant.json` to your project with the following format:
 
     {
 	    "http_port": "8080",
 	    "extra_recipes": "localdev::geoip localdev::something-else"
     }
 
-**Important Note:** You _must_ modify the `http_port` to reflect the port assigned to the project. Project port assignments are cataloged on Google Drive:
+Configuration options:
 
-https://docs.google.com/a/iamota.com/spreadsheets/d/1pFm1RVFnsfQsNyC2YpmfQZtubdgDO7mOfymduogZDRA/edit?usp=sharing
+`http_port` : Modify to reflect port assigned to the project. Assignments are recorded on Google Drive in the [Project Port Assignment spreadsheet](https://docs.google.com/a/iamota.com/spreadsheets/d/1pFm1RVFnsfQsNyC2YpmfQZtubdgDO7mOfymduogZDRA/edit?usp=sharing).
 
+`extra_recipes` : A list of additional Chef recipes that must be parsed by Chef during provisioning.
 
 
