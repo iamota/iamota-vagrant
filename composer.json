@@ -1,0 +1,14 @@
+{
+    "name": "iamota/iamota-vagrant",
+    "description": "Standardized local development environment using Vagrant.",
+    "type": "local-dev-environment",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Mike Walker",
+            "email": "mike.walker@iamota.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
