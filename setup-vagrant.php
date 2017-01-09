@@ -24,7 +24,7 @@ define('VAGRANT_TMPL', 	'.local/vagrant/Vagrantfile-template');
 $defaults = [
     'project_root'  => '.',
     'http_port'     => '8080',
-    'http_host'     => 'localdev',
+    'http_host'     => 'localhost',
     'mysql_port'    => '3306',
     'vbox_memory'   => '1024',
     'vbox_cpus'     => '1',
@@ -168,7 +168,13 @@ if (file_exists($output) && !is_writable($output)) {
     exit(1);
 }
 
+fwrite(STDOUT, "\nGenerating Vagrantfile...");
+fwrite(STDOUT, "\nOutput path: {$output}");
+
 file_put_contents($output, $vagrantfile);
+
+fwrite(STDOUT, "\nComplete! You may now run `vagrant up` to start your instance.");
+fwrite(STDOUT, "\n");
 
 // Exit correctly
 exit(0);

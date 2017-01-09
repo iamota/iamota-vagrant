@@ -82,7 +82,7 @@ Vagrant.configure('2') do |config|
     sudo service php7.0-fpm start
     echo "BAM!"
     echo "Your Localdev Vagrant Box provisioned!"
-    echo "Local server address is http://localhost:%%HTTP_PORT%%"
+    echo "Local server address is http://%%HTTP_HOST%%:%%HTTP_PORT%%"
   EOF
 
 end
