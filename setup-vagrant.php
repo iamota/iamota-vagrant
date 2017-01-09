@@ -118,9 +118,12 @@ if (!$echo) {
  * Handle Extra Chef Recipes
  */
 function parse_recipes( $recipes ) {
+	$recipes = trim($recipes);
+	if (empty($recipes))
+		return '';
     $arr = explode(' ', $recipes);
 	$arr = array_map(
-            function($item){ return "chef.add_recipe '{$item}'"; },
+            function($item){ $item = trim($item); return "chef.add_recipe '{$item}'"; },
             $arr
         );
 	$str = implode("\n    ", $arr);
