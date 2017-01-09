@@ -4,7 +4,7 @@ Standardized local development environment using Vagrant.
 
 ## Installing the local environment
 
-Modify your `composer.json` to add the following:
+**Step 1:** Modify your `composer.json` to add the following:
 
 Under `repositories` section, add:
 
@@ -33,7 +33,7 @@ Under the `extras` section, modify to reflect the following:
 
 ## Setting up the project Vagrant box
 
-Add a file named `vagrant.json` to your project with the following format:
+**Step 2:** Add a file named `vagrant.json` to your project with the following format:
 
     {
 	    "http_port": "8080",
@@ -46,4 +46,40 @@ Configuration options:
 
 `extra_recipes` : A list of additional Chef recipes that must be parsed by Chef during provisioning.
 
+## Configure gitignore
 
+**Step 3:** Modify the `.gitignore` file to include the following definition:
+
+    .local/
+
+## Generate your Vagrantfile
+
+From the project root directory, run the following command:
+
+    $ php .local/setup-vagrant.php
+
+Follow the prompts to generate your Vagrantfile.
+
+	Configuring your Vagrant instance. Hit enter to use [default] value.
+
+	Project root dir [.]:
+	Project HTTP Port [8085]:
+	HTTP Hostname [localhost]:
+	MySQL Port [3306]:
+	Virtual Box Guest Memory [1024]:
+	Virtual Box Guest CPUs [1]:
+
+	New Vagrantfile
+	========================================
+
+	[--snip!---]
+
+	========================================
+
+	Generating Vagrantfile...
+	Output path: /Users/mike/code/iamota-components/Vagrantfile
+	Complete! You may now run `vagrant up` to start your instance.
+
+Once you've completed the Vagrantfile generation, you can set up your vagrant instance by running `vagrant up`.
+
+***Done***

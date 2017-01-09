@@ -91,7 +91,11 @@ if (!$echo) {
 	    return (!empty(trim($input))) ? $input : $default;
 	}
 
-	fwrite(STDOUT, "\n\nConfiguring your Vagrant instance. Hit enter to use [default] value.\n");
+	fwrite(STDOUT, "\n========================================");
+	fwrite(STDOUT, "\nGenerating new Vagrantfile!");
+	fwrite(STDOUT, "\nBeginning interactive configuration. Hit enter to use [default] value.");
+	fwrite(STDOUT, "\n========================================");
+	fwrite(STDOUT, "\n\n");
 
 	foreach ([
 
@@ -147,10 +151,9 @@ if ($echo) {
 /**
  * Otherwise output the new Vagrantfile contents + helper info to STDOUT
  */
-fwrite(STDOUT, "\nNew Vagrantfile");
-fwrite(STDOUT, "\n========================================");
-fwrite(STDOUT, "\n".$vagrantfile);
-fwrite(STDOUT, "\n========================================");
+fwrite(STDOUT, "\n== New Vagrantfile =========================================");
+fwrite(STDOUT, "\n\n".$vagrantfile);
+fwrite(STDOUT, "\n== End of Vagrantfile ======================================");
 fwrite(STDOUT, "\n");
 
 /**
@@ -168,13 +171,10 @@ if (file_exists($output) && !is_writable($output)) {
     exit(1);
 }
 
-fwrite(STDOUT, "\nGenerating Vagrantfile...");
-fwrite(STDOUT, "\nOutput path: {$output}");
+fwrite(STDOUT, "\nGenerating Vagrantfile ...\nOuput path: `{$output}`");
 
 file_put_contents($output, $vagrantfile);
 
-fwrite(STDOUT, "\nComplete! You may now run `vagrant up` to start your instance.");
-fwrite(STDOUT, "\n");
+fwrite(STDOUT, "\nComplete!\n\nYou may now run `vagrant up` to start your instance.\n");
 
-// Exit correctly
-exit(0);
+exit(0); // Success!
