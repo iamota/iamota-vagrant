@@ -10,16 +10,16 @@ Under `repositories` section, add:
 
     {
         "type": "vcs",
-		"url": "git@github.com:iamota/iamota-vagrant.git"
-    },
+	"url": "git@github.com:iamota/iamota-vagrant.git"
+    }
 
 Under the `require` section:
 
-    "oomphinc/composer-installers-extender": "1.1.1",
+    "oomphinc/composer-installers-extender": "1.1.1"
 
 Under the `require-dev` section:
 
-    "iamota/iamota-vagrant": "1.x",
+    "iamota/iamota-vagrant": "1.x"
 
 Under the `extras` section, modify to reflect the following:
 
