@@ -10,7 +10,7 @@ Under `repositories` section, add:
 
     {
         "type": "vcs",
-	"url": "git@github.com:iamota/iamota-vagrant.git"
+        "url": "git@github.com:iamota/iamota-vagrant.git"
     }
 
 Under the `require` section:
