@@ -1,62 +1,30 @@
 # Vagrant Local Development Environment
 
-Standardized local development environment using Vagrant.
+This project provides a standardized a local development environment using [Vagrant](http://vagrantup.com), provisioned by [Chef Solo](vagrantup.com/docs/provisioning/chef_solo.html), running inside Virtualbox machines.
 
-## Installing the local environment
+[Vagrant Manager](http://vagrantmanager.com/) is a cross-platform app that helps simplfy management of the (many) vagrant boxes you will have installed on your system.
 
-:interrobang: **Unless you are setting up a brand new project, you don't need to do this.**
+If you are troubleshooting, see the notes at the bottom of the readme.
 
-If you are setting up a brand new environment, follow these steps:
+## Setting up an existing project
 
-**Step 1:** Modify your `composer.json` to add the following:
+There are just a handful of steps:
 
-Under `repositories` section, add:
+1. Ensure the pre-requisite software is installed: 
+   
+   [Vagrant](https://www.vagrantup.com/downloads.html), [Virtualbox](https://www.virtualbox.org/wiki/Downloads), [Chef Client](https://downloads.chef.io), [Composer](https://getcomposer.org), [NPM](https://nodejs.org/en/download/), [Bower](https://bower.io)
 
-    {
-        "type": "vcs",
-        "url": "git@github.com:iamota/iamota-vagrant.git"
-    }
+2. Clone the **project repository** into a directory on your machine. (Note: You probably don't want to clone THIS repository).
 
-Under the `require` section:
+3. Run the following commands:
 
-    "oomphinc/composer-installers-extender": "1.1.1"
+	npm install
+	bower install
+	composer install
+	php .local/setup-vagrant.php     :point_left: See below!
+	grunt prod
 
-Under the `require-dev` section:
-
-    "iamota/iamota-vagrant": "1.x"
-
-Under the `extras` section, modify to reflect the following:
-
-    "extra": {
-        "installer-types": ["local-dev-environment"],
-        "installer-paths": {
-            ".local/": ["type:local-dev-environment"]
-        }
-    }
-
-
-## Setting up the project Vagrant box
-
-**Step 2:** Add a file named `vagrant.json` to your project with the following format:
-
-    {
-	    "http_port": "8080",
-	    "extra_recipes": "localdev::geoip localdev::something-else"
-    }
-
-Configuration options:
-
-`http_port` : Modify to reflect port assigned to the project. Assignments are recorded on Google Drive in the [Project Port Assignment spreadsheet](https://docs.google.com/a/iamota.com/spreadsheets/d/1pFm1RVFnsfQsNyC2YpmfQZtubdgDO7mOfymduogZDRA/edit?usp=sharing).
-
-`extra_recipes` : A list of additional Chef recipes that must be parsed by Chef during provisioning.
-
-## Configure gitignore
-
-**Step 3:** Modify the `.gitignore` file to include the following definition:
-
-    .local/
-
-## Generate your Vagrantfile
+### Generate your Vagrantfile
 
 From the project root directory, run the following command:
 
@@ -87,3 +55,65 @@ Follow the prompts to generate your Vagrantfile.
 Once you've completed the Vagrantfile generation, you can set up your vagrant instance by running `vagrant up`.
 
 ***Done***
+
+
+## Setting up a NEW project (from scratch)
+
+If you are setting up a brand new environment, follow these steps below. 
+
+**Step 1:** Modify your `composer.json` to add the following:
+
+Under `repositories` section, add:
+
+    {
+        "type": "vcs",
+        "url": "git@github.com:iamota/iamota-vagrant.git"
+    }
+
+Under the `require` section:
+
+    "oomphinc/composer-installers-extender": "1.1.1"
+
+Under the `require-dev` section:
+
+    "iamota/iamota-vagrant": "1.x"
+
+Under the `extras` section, modify to reflect the following:
+
+    "extra": {
+        "installer-types": ["local-dev-environment"],
+        "installer-paths": {
+            ".local/": ["type:local-dev-environment"]
+        }
+    }
+
+
+### vagrant.json Project configuration file
+
+**Step 2:** Add a file named `vagrant.json` to your project with the following format:
+
+    {
+	    "http_port": "8080",
+	    "extra_recipes": "localdev::geoip localdev::something-else"
+    }
+
+Configuration options:
+
+`http_port` : Modify to reflect port assigned to the project. Assignments are recorded on Google Drive in the [Project Port Assignment spreadsheet](https://docs.google.com/a/iamota.com/spreadsheets/d/1pFm1RVFnsfQsNyC2YpmfQZtubdgDO7mOfymduogZDRA/edit?usp=sharing).
+
+`extra_recipes` : A list of additional Chef recipes that must be parsed by Chef during provisioning.
+
+### Configure .gitignore
+
+**Step 3:** Modify the `.gitignore` file to include the following definition:
+
+    .local/
+
+### Complete.
+
+
+## Notes
+
+
+
+
