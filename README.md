@@ -18,11 +18,11 @@ There are just a handful of steps:
 
 3. Run the following commands:
 
-	npm install
-	bower install
-	composer install
-	php .local/setup-vagrant.php     :point_left: See below!
-	grunt prod
+        npm install
+        bower install
+        composer install
+        php .local/setup-vagrant.php     :point_left: See below!
+        grunt prod
 
 ### Generate your Vagrantfile
 
