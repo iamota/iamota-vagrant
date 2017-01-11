@@ -21,7 +21,7 @@ There are just a handful of steps:
         npm install
         bower install
         composer install
-        php .local/setup-vagrant.php     :point_left: See below!
+        php .local/setup-vagrant.php
         grunt prod
 
 ### Generate your Vagrantfile
