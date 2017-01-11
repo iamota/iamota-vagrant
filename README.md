@@ -4,6 +4,10 @@ Standardized local development environment using Vagrant.
 
 ## Installing the local environment
 
+:interrobang: **Unless you are setting up a brand new project, you don't need to do this.**
+
+If you are setting up a brand new environment, follow these steps:
+
 **Step 1:** Modify your `composer.json` to add the following:
 
 Under `repositories` section, add:
