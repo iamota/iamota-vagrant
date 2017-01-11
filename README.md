@@ -49,19 +49,20 @@ Follow the prompts to generate your Vagrantfile.
 	========================================
 
 	Generating Vagrantfile...
-	Output path: /Users/mike/code/iamota-components/Vagrantfile
+	Output path: /Users/your/awesome-project/Vagrantfile
 	Complete! You may now run `vagrant up` to start your instance.
 
 Once you've completed the Vagrantfile generation, you can set up your vagrant instance by running `vagrant up`.
 
-***Done***
+***Done configuring your environment. You can stop here.***
 
+----
 
-## Setting up a NEW project (from scratch)
+## New setup of local dev environment
 
-If you are setting up a brand new environment, follow these steps below. 
+If you are setting up a **brand new environment**, follow these steps below. 
 
-**Step 1:** Modify your `composer.json` to add the following:
+**Step 1:** Add/modify `composer.json` file to contain the following:
 
 Under `repositories` section, add:
 
@@ -87,9 +88,6 @@ Under the `extras` section, modify to reflect the following:
         }
     }
 
-
-### vagrant.json Project configuration file
-
 **Step 2:** Add a file named `vagrant.json` to your project with the following format:
 
     {
@@ -97,19 +95,17 @@ Under the `extras` section, modify to reflect the following:
 	    "extra_recipes": "localdev::geoip localdev::something-else"
     }
 
-Configuration options:
+vagrant.json options:
 
 `http_port` : Modify to reflect port assigned to the project. Assignments are recorded on Google Drive in the [Project Port Assignment spreadsheet](https://docs.google.com/a/iamota.com/spreadsheets/d/1pFm1RVFnsfQsNyC2YpmfQZtubdgDO7mOfymduogZDRA/edit?usp=sharing).
 
 `extra_recipes` : A list of additional Chef recipes that must be parsed by Chef during provisioning.
 
-### Configure .gitignore
-
 **Step 3:** Modify the `.gitignore` file to include the following definition:
 
     .local/
 
-### Complete.
+***New environment setup complete!***
 
 
 ## Notes
