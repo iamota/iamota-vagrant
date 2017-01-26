@@ -92,7 +92,7 @@ Under the `extras` section, modify to reflect the following:
 
     {
 	    "http_port": "8080",
-	    "extra_recipes": "localdev::geoip localdev::something-else"
+	    "extra_recipes": ""
     }
 
 vagrant.json options:
