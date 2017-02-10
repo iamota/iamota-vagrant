@@ -5,6 +5,7 @@ template "#{node[:localdev][:project_path]}/.env" do
   group node[:localdev]['group']
   mode '0755'
   variables ({
+    :environment        => 'localhost',
 
     :db_name            => node[:mysql][:database],
     :db_user            => node[:mysql][:user],
