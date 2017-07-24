@@ -12,6 +12,12 @@ default[:nginx] = {
     :server_name    => 'localdev',
     :server_port    => '80',
     :server_root    => '/www/current/public',
+    :include_magento => 'no',
+    :magento2		=> {
+	:mage_mode => 'developer',
+        :mage_root => '/www/current/',
+        :mage_conf => '/etc/nginx/magento2.conf',
+    }
 }
 
 default[:mysql_server] = {
@@ -32,7 +38,7 @@ default[:mysql] = {
 default[:php] = {
     :use_windows_syslog     => '0',
     :log_errors             => 'On',
-    :display_errors         => 'Off',
+    :display_errors         => 'On',
     :error_reporting        => 'E_ALL & ~E_DEPRECATED & ~E_STRICT',
 
     :memory_limit           => '256M',
@@ -48,7 +54,7 @@ default[:php] = {
     :xdebug_remote_port     => '9000',
     :xdebug_halt_level      => '0',
 
-    :request_slowlog_timeout => '10s'
+    :request_slowlog_timeout => '15s'
 }
 
 default[:wp] = {

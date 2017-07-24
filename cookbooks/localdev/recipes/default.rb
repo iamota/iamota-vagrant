@@ -16,7 +16,9 @@
   'unzip',
   'mlocate',
   'screen',
-  'fontforge' ].each do |p|
+  'fontforge',
+  'libcurl3',
+  'curl' ].each do |p|
     package p do
         action :install
     end

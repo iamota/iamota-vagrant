@@ -23,10 +23,12 @@ end
   'php7.0-dev',
   'php7.0-gd',
   'php7.0-json',
+  'php7.0-intl',
   'php7.0-opcache',
   'php7.0-mcrypt',
   'php7.0-mbstring',
   'php7.0-xml',
+  'php7.0-xsl',
   'php7.0-zip' ].each do |p|
     package p do
         action :install
@@ -42,6 +44,8 @@ end
 [ 'php-apcu',
   'php-imagick',
   'php-memcache',
+  'php-pear',
+  'php-soap',
   'php-xdebug' ].each do |p|
     package p do
         action :install
