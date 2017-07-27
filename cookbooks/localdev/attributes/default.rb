@@ -11,13 +11,8 @@ default[:localdev] = {
 default[:nginx] = {
     :server_name    => 'localdev',
     :server_port    => '80',
+    :mage_port	    => '8888',
     :server_root    => '/www/current/public',
-    :include_magento => 'no',
-    :magento2		=> {
-	:mage_mode => 'developer',
-        :mage_root => '/www/current/',
-        :mage_conf => '/etc/nginx/magento2.conf',
-    }
 }
 
 default[:mysql_server] = {
@@ -61,6 +56,21 @@ default[:wp] = {
     :theme          => 'mytheme',
     :post_revisions => '15',
     :table_prefix   => 'wp_',
+}
+
+default[:magento2] = {
+	:include		=> 'no',
+    :database       => 'magento',
+    :mage_mode 		=> 'developer',
+	:mage_root 		=> '/www/current/magento2',
+	:language		=> 'en_US',
+	:timezone		=> 'America/Vancouver',
+	:currency		=> 'CAD',
+	:admin_firstname => 'iamota',
+	:admin_lastname => 'iamota',
+	:admin_email    => 'localdev@iamota.com',
+	:admin_user     => 'iamotaadmin',
+	:admin_password => 'iamota'
 }
 
 default[:cache] = {

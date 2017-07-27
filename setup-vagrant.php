@@ -19,11 +19,13 @@
 
 define('DS', 			DIRECTORY_SEPARATOR);
 define('VAGRANT_JSON', 	'vagrant.json');
-define('VAGRANT_TMPL', 	'.local/vagrant/Vagrantfile-template');
+define('VAGRANTFILE_TMPL', 	'.local/vagrant/Vagrantfile-template');
+define('VAGRANTFILE_MAGE', 	'.local/vagrant/Vagrantfile-mage');
 
 $defaults = [
     'project_root'  => '.',
     'http_port'     => '8080',
+    'mage_port'		=> '8081',
     'http_host'     => 'localhost',
     'mysql_port'    => '3306',
     'vbox_memory'   => '1024',
@@ -77,11 +79,6 @@ $json 		= json_decode($json_str, true);
 $config 	= array_merge($defaults, $json);
 
 /**
- * Get config path from either cli argument or readme file in current dir.
- */
-$template 	= file_get_contents($cwd.DS.str_replace('/', DS, VAGRANT_TMPL));
-
-/**
  * Prompt users for input and parse by looping over a set of config descriptions
  * and their related config slug.
  */
@@ -91,26 +88,35 @@ if (!$echo) {
 	    return (!empty(trim($input))) ? $input : $default;
 	}
 
+	$has_mage = (!empty($json['mage_port']));
+
 	fwrite(STDOUT, "\n========================================");
 	fwrite(STDOUT, "\nGenerating new Vagrantfile!");
 	fwrite(STDOUT, "\nBeginning interactive configuration. Hit enter to use [default] value.");
 	fwrite(STDOUT, "\n========================================");
 	fwrite(STDOUT, "\n\n");
 
-	foreach ([
-
+	// Each item below is a prompt for the user.
+	// the keys should match the $defaults array above.
+	$user_prompt = [
 	    'project_root'  => 'Project root dir',
-	    'http_port'     => 'Project HTTP Port',
 	    'http_host'     => 'HTTP Hostname',
+	    'http_port'     => 'Project HTTP Port',
+	    'mage_port' 	=> ($has_mage) ? 'Magento 2 HTTP Port' : false,
 	    'mysql_port'    => 'MySQL Port',
 	    'vbox_memory'   => 'Virtual Box Guest Memory',
 	    'vbox_cpus'     => 'Virtual Box Guest CPUs',
+	];
 
-	  	] as $var => $desc ) {
+	foreach ($user_prompt as $var => $desc ) {
 
-	    fwrite(STDOUT, sprintf('%s [%s]: ', $desc, $config[$var]));
+		if (empty($desc)) continue; // If value is not truthy, skip this interation.
+
+		$default = (!empty($config[$var])) ? $config[$var] : ''; // blank default
+
+	    fwrite(STDOUT, sprintf('%s [%s]: ', $desc, $default));
 	    $input = fgets(STDIN);
-		$config[$var] = parse_input($input, $config[$var]);
+		$config[$var] = parse_input($input, $default);
 	}
 }
 
@@ -141,7 +147,13 @@ $search = array_map(
             array_keys($config)
         );
 $replace = array_values($config);
-$vagrantfile = str_replace($search, $replace, $template);
+
+/**
+ * Get config path from either cli argument or readme file in current dir.
+ */
+$template_path 	= ($has_mage) ? VAGRANTFILE_MAGE : VAGRANTFILE_TMPL;
+$template 		= file_get_contents($cwd.DS.str_replace('/', DS, $template_path));
+$vagrantfile 	= str_replace($search, $replace, $template);
 
 /**
  * If echo-only, output the new Vagrantfile contents to STDOUT and exit

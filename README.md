@@ -10,25 +10,25 @@ If you are troubleshooting, see the notes at the bottom of the readme.
 
 There are just a handful of steps:
 
-1. Ensure the pre-requisite software is installed: 
-   
+1. Ensure the pre-requisite software is installed:
+
    [Vagrant](https://www.vagrantup.com/downloads.html), [Virtualbox](https://www.virtualbox.org/wiki/Downloads), [Chef Client](https://downloads.chef.io), [Composer](https://getcomposer.org), [NPM](https://nodejs.org/en/download/), [Bower](https://bower.io)
 
 2. Clone the **project repository** into a directory on your machine. (Note: You probably don't want to clone THIS repository).
 
 3. Run the following commands:
 
-        npm install
-        bower install
-        composer install
-        php .local/setup-vagrant.php
-        grunt prod
+		npm install
+		bower install
+		composer install
+		php .local/setup-vagrant.php
+		grunt prod
 
 ### Generate your Vagrantfile
 
 From the project root directory, run the following command:
 
-    $ php .local/setup-vagrant.php
+	$ php .local/setup-vagrant.php
 
 Follow the prompts to generate your Vagrantfile.
 
@@ -60,40 +60,41 @@ Once you've completed the Vagrantfile generation, you can set up your vagrant in
 
 ## New setup of local dev environment
 
-If you are setting up a **brand new environment**, follow these steps below. 
+If you are setting up a **brand new environment**, follow these steps below.
 
 **Step 1:** Add/modify `composer.json` file to contain the following:
 
 Under `repositories` section, add:
 
-    {
-        "type": "vcs",
-        "url": "git@github.com:iamota/iamota-vagrant.git"
-    }
+	{
+		"type": "vcs",
+		"url": "git@github.com:iamota/iamota-vagrant.git"
+	}
 
 Under the `require` section:
 
-    "oomphinc/composer-installers-extender": "1.1.1"
+	"oomphinc/composer-installers-extender": "1.1.1"
 
 Under the `require-dev` section:
 
-    "iamota/iamota-vagrant": "1.x"
+	"iamota/iamota-vagrant": "1.x"
 
 Under the `extras` section, modify to reflect the following:
 
-    "extra": {
-        "installer-types": ["local-dev-environment"],
-        "installer-paths": {
-            ".local/": ["type:local-dev-environment"]
-        }
-    }
+	"extra": {
+		"installer-types": ["local-dev-environment"],
+		"installer-paths": {
+			".local/": ["type:local-dev-environment"]
+		}
+	}
 
 **Step 2:** Add a file named `vagrant.json` to your project with the following format:
 
-    {
-	    "http_port": "8080",
-	    "extra_recipes": ""
-    }
+	{
+		"http_port": "8080",
+		"mage_port": "8081",
+		"extra_recipes": ""
+	}
 
 vagrant.json options:
 
@@ -103,13 +104,15 @@ vagrant.json options:
 
 **Step 3:** Modify the `.gitignore` file to include the following definition:
 
-    .local/
+	.local/
 
 ***New environment setup complete!***
 
 
 ## Notes
 
+If a vagrant.json exists in this repository, it's meant for testing. It is not meant to be deployed into a project, but used for reference when creating the vagrant.json for your specific project.
 
+When working on the iamota-vagrant project, you will get errors when running `php setup-vagrant.php` unless you symlink the project "root" directory as a sub-directory named `.local`. Do this by running the following command: `ln -s . .local`
 
 

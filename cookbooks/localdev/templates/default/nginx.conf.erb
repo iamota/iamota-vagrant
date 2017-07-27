@@ -30,27 +30,13 @@ server {
 	root                <%= @server_root %>;
 
 	# ===============================================================================================
-	# MAGENTO CONFIGURATION
+	# W3TOTALCACHE WORDPRESS SINGLE BLOG
 	# ===============================================================================================
-	<% if @include_magento == 'yes' %>
 
-		set $MAGE_MODE 		<%= @mage_mode %>;
-		set $MAGE_ROOT 		<%= @mage_root %>;
-
-		include 			<%= @mage_nginx_conf %>;
-
-	<% else %>
-
-		# ===============================================================================================
-		# W3TOTALCACHE WORDPRESS SINGLE BLOG
-		# ===============================================================================================
-
-		# Use cached or actual file if they exists, otherwise pass request to WordPress
-		location / {
-				try_files <%= @wp_content_relative_path %>/w3tc/pgcache/$cache_uri/_index.html $uri $uri/ /index.php?$args ;
-		}
-
-	<% end -%>
+	# Use cached or actual file if they exists, otherwise pass request to WordPress
+	location / {
+			try_files <%= @wp_content_relative_path %>/w3tc/pgcache/$cache_uri/_index.html $uri $uri/ /index.php?$args ;
+	}
 
 	# Base Setup and Security
 
