@@ -30,3 +30,20 @@ end
         action :install
     end
 end
+
+template '/etc/motd' do
+  source 'motd.erb'
+  owner 'root'
+  group 'root'
+  mode '0755'
+  variables ({
+  	:project_path => node[:localdev][:project_path]
+  	})
+end
+
+template '/home/ubuntu/.bash_aliases' do
+  source 'bash_aliases.erb'
+  variables ({
+  	:project_path => node[:localdev][:project_path]
+  	})
+end

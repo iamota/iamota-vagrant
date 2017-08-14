@@ -1,36 +1,25 @@
-php bin/magento setup:install \
-	--cleanup-database \
-	--db-host=<%= @db_host %> \
-	--db-name=<%= @db_name %> \
-	--db-user=<%= @db_user %> \
-	--db-password=<%= @db_password %> \
-	--backend-frontname=admin \
-	--base-url=http://<%= @hostname %>:<%= @port %>/ \
-	--language=<%= @language %> \
-	--timezone=<%= @timezone %> \
-	--currency=<%= @currency %> \
-	--admin-lastname=<%= @admin_lastname %> \
-	--admin-firstname=<%= @admin_firstname %> \
-	--admin-email=<%= @admin_email %> \
-	--admin-user=<%= @admin_user %> \
-	--admin-password=<%= @admin_password %> \
-	--use-secure=0
 
+cd <%= @mage_root %>
+
+/bin/rm -rf var/*
 
 php bin/magento setup:install \
-	--cleanup-database \
-	--db-host=localhost \
-	--db-name=magento \
-	--db-user=magento \
-	--db-password=secret \
-	--backend-frontname=admin \
-	--base-url=http://127.0.0.1:8080/ \
-	--language=en_US \
-	--timezone=America/Los_Angeles \
-	--currency=USD \
-	--admin-lastname=Smith \
-	--admin-firstname=John \
-	--admin-email=john.smith@example.com \
-	--admin-user=admin \
-	--admin-password=admin123 \
-	--use-secure=0
+  --cleanup-database \
+  --db-host=<%= @db_host %> \
+  --db-name=<%= @db_name %> \
+  --db-user=<%= @db_user %> \
+  --db-password=<%= @db_password %> \
+  --backend-frontname=<%= @backend_frontname %> \
+  --base-url=http://<%= @hostname %>:<%= @port %>/ \
+  --language=<%= @language %> \
+  --timezone=<%= @timezone %> \
+  --currency=<%= @currency %> \
+  --admin-lastname=<%= @admin_lastname %> \
+  --admin-firstname=<%= @admin_firstname %> \
+  --admin-email=<%= @admin_email %> \
+  --admin-user=<%= @admin_user %> \
+  --admin-password=<%= @admin_password %> \
+  --use-secure=0 \
+  --use-rewrites=1 \
+  --use-secure-admin=0 \
+  --session-save=files

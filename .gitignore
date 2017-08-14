@@ -8,3 +8,5 @@ Vagrantfile
 ubuntu*.log
 logs/
 vagrant.json
+mage_setup_command.sh
+mage/

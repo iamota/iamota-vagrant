@@ -31,6 +31,7 @@ $defaults = [
     'vbox_memory'   => '1024',
     'vbox_cpus'     => '1',
     'extra_recipes'	=> '',
+    'final_user_message' => '',
 ];
 
 // very complicated.
@@ -137,6 +138,19 @@ function parse_recipes( $recipes ) {
 }
 
 $config['extra_recipes'] = parse_recipes($config['extra_recipes']);
+
+/**
+ * Add extra messaging to the Vagrantfile, if needed.
+ */
+$final_user_message = [];
+
+// Configured host isn't localhost or local IP
+if (!in_array($config['http_host'], ['localhost', '127.0.0.1'])) {
+	$final_user_message[] = 'echo "Important: Add the custom hostname to your hosts file. Shorthand: sudo echo \'127.0.0.1 ' . $config['http_host']. '\' >> /etc/hosts"';
+}
+
+// Build the message
+$config['final_user_message'] = implode("\n", $final_user_message);
 
 /**
  * Read Vagrantfile template and replace placeholders with config values.
