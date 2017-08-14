@@ -138,9 +138,9 @@ server {
 	# This order might seem weird - this is attempted to match last if rules below fail.
 	# http://wiki.nginx.org/HttpCoreModule
 	# DISABLED - W3TC HANDLES IT BELOW INSTEAD
-	#location / {
+	# location / {
 	#   try_files $uri $uri/ /index.php?$args;
-	#}
+	# }
 
 	# Add trailing slash to */wp-admin requests.
 	rewrite /wp-admin$ $scheme://$host$uri/ permanent;
@@ -267,8 +267,7 @@ server {
 	}
 
 	# Pass the PHP scripts to FastCGI server listening on the php-fpm socket
-	location ~ (index|get|static|report|404|503)\.php$ {
-	#location ~* \.php$ {
+	location ~* \.php$ {
 		fastcgi_index   index.php;
 		fastcgi_buffers 1024 4k;
 		fastcgi_read_timeout 600s;

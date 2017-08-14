@@ -116,7 +116,7 @@ if (!$echo) {
 		$default = (!empty($config[$var])) ? $config[$var] : ''; // blank default
 
 	    fwrite(STDOUT, sprintf('%s [%s]: ', $desc, $default));
-	    $input = fgets(STDIN);
+	    $input = trim(fgets(STDIN));
 		$config[$var] = parse_input($input, $default);
 	}
 }
