@@ -48,13 +48,18 @@ $args = array_map(
             array_keys($defaults)
         );
 $shortopts 	= "";
-$longopts  	= ["conf::", "echo", "dry-run"] + $args;
+$longopts  	= ["conf::", "interactive", "echo", "dry-run"] + $args;
 $options 	= getopt($shortopts, $longopts);
 
 /**
  * Print Vagrantfile to STDOUT without user prompts or other meta
  */
 $echo = (isset($options['echo']));
+
+/**
+ * Interactive mode for modifying defaults.
+ */
+$interactive = (isset($options['interactive']));
 
 /**
  * Get config path from either cli argument or readme file in current dir.
@@ -64,9 +69,10 @@ if (isset($options['conf']) && !is_file($options['conf'])) {
     exit(1);
 }
 
+// Load JSON config path..
 $json_path = (isset($options['conf']))
-			? $options['conf']
-			: $cwd . DS . VAGRANT_JSON;
+		? $options['conf'] // ..from commandline argument
+		: $cwd . DS . VAGRANT_JSON; // ..or from default location
 
 /**
  * Parse the vagrant.json config blob
@@ -80,16 +86,20 @@ $json 		= json_decode($json_str, true);
 $config 	= array_merge($defaults, $json);
 
 /**
+ * Is this a Magento project?
+ * There are additional Chef recipes and other configs needed for Mage.
+ */
+$has_mage = (!empty($json['mage_port']));
+
+/**
  * Prompt users for input and parse by looping over a set of config descriptions
  * and their related config slug.
  */
-if (!$echo) {
+if ($interactive) {
 
 	function parse_input ( $input, $default ) {
 	    return (!empty(trim($input))) ? $input : $default;
 	}
-
-	$has_mage = (!empty($json['mage_port']));
 
 	fwrite(STDOUT, "\n========================================");
 	fwrite(STDOUT, "\nGenerating new Vagrantfile!");
@@ -178,12 +188,15 @@ if ($echo) {
 }
 
 /**
- * Otherwise output the new Vagrantfile contents + helper info to STDOUT
+ * Otherwise, if this is an interactive session, output the new Vagrantfile
+ * contents + helper info to STDOUT.
  */
-fwrite(STDOUT, "\n== New Vagrantfile =========================================");
-fwrite(STDOUT, "\n\n".$vagrantfile);
-fwrite(STDOUT, "\n== End of Vagrantfile ======================================");
-fwrite(STDOUT, "\n");
+if ($interactive) {
+	fwrite(STDOUT, "\n== New Vagrantfile =========================================");
+	fwrite(STDOUT, "\n\n".$vagrantfile);
+	fwrite(STDOUT, "\n== End of Vagrantfile ======================================");
+	fwrite(STDOUT, "\n");
+}
 
 /**
  * Dry-run creation of Vagrant file outputs it to screen.
@@ -193,17 +206,22 @@ if (isset($options['dry-run'])) {
     exit(0);
 }
 
+// Output path for new Vagrantfile
 $output = $cwd . DS . 'Vagrantfile';
 
+// Check if we can actually write the file.
 if (file_exists($output) && !is_writable($output)) {
     fwrite(STDERR, "ERROR: Vagrantfile cannot be written\n");
     exit(1);
 }
 
-fwrite(STDOUT, "\nGenerating Vagrantfile ...\nOuput path: `{$output}`");
+// Helpful messaging..
+fwrite(STDOUT, "Writing `{$output}`");
 
+// Output file..
 file_put_contents($output, $vagrantfile);
 
-fwrite(STDOUT, "\nComplete!\n\nYou may now run `vagrant up` to start your instance.\n");
+// Done!
+fwrite(STDOUT, "\nComplete! You may now run `vagrant up` to start your instance.\n");
 
 exit(0); // Success!
