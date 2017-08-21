@@ -1,8 +1,3 @@
-upstream fastcgi_backend {
-	server 127.0.0.1:9000;
-}
-
-
 # ===============================================================================================
 # Define Environment variable
 # ===============================================================================================
@@ -269,13 +264,18 @@ server {
 	# Pass the PHP scripts to FastCGI server listening on the php-fpm socket
 	location ~* \.php$ {
 		fastcgi_index   index.php;
-		fastcgi_buffers 1024 4k;
-		fastcgi_read_timeout 600s;
-		fastcgi_connect_timeout 600s;
-		fastcgi_pass    127.0.0.1:9000;
-		include         fastcgi_params;
-		fastcgi_param   SCRIPT_FILENAME    $document_root$fastcgi_script_name;
-		fastcgi_param   SCRIPT_NAME        $fastcgi_script_name;
+        fastcgi_pass    127.0.0.1:9000;
+        include         fastcgi_params;
+        fastcgi_param   SCRIPT_FILENAME    $document_root$fastcgi_script_name;
+        fastcgi_param   SCRIPT_NAME        $fastcgi_script_name;
+		# fastcgi_index   index.php;
+		# fastcgi_buffers 1024 4k;
+		# fastcgi_read_timeout 600s;
+		# fastcgi_connect_timeout 600s;
+		# fastcgi_pass    127.0.0.1:9000;
+		# include         fastcgi_params;
+		# fastcgi_param   SCRIPT_FILENAME    $document_root$fastcgi_script_name;
+		# fastcgi_param   SCRIPT_NAME        $fastcgi_script_name;
 	}
 
 }

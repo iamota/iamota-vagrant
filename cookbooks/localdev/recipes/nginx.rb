@@ -46,30 +46,30 @@ end
 # Magento
 # =================
 
-if node[:magento2][:include] == 'yes'
+if node[:magento2][:include_mage] == 'yes'
 
-	template '/etc/nginx/sites-available/magento2.conf' do
-	  source 'nginx-mage2.conf.erb'
-	  owner 'root'
-	  group 'root'
-	  mode '0755'
-	  variables({
-	  	:server_root  => node[:nginx][:server_root],
-    	:server_name 	=> node[:nginx][:server_name],
-    	:server_port 	=> node[:nginx][:mage_port],
-    	:log_path     => node[:localdev][:log_path],
-			:mage_root		=> node[:magento2][:mage_root],
-			:mage_mode		=> node[:magento2][:mage_mode],
-	  })
-	  action :create
-	end
+	# template '/etc/nginx/sites-available/magento2.conf' do
+	#   source 'nginx-mage2.conf.erb'
+	#   owner 'root'
+	#   group 'root'
+	#   mode '0755'
+	#   variables({
+	#   	:server_root  => node[:nginx][:server_root],
+ #    	:server_name 	=> node[:nginx][:server_name],
+ #    	:server_port 	=> node[:nginx][:mage_port],
+ #    	:log_path     => node[:localdev][:log_path],
+	# 		:mage_root		=> node[:magento2][:mage_root],
+	# 		:mage_mode		=> node[:magento2][:mage_mode],
+	#   })
+	#   action :create
+	# end
 
-	# Enable localdev nginx conf
-	link '/etc/nginx/sites-enabled/magento2.conf' do
-	  to '/etc/nginx/sites-available/magento2.conf'
-	  action :create
-	  notifies :restart, resources(:service => 'nginx'), :immediately
-	end
+	# # Enable localdev nginx conf
+	# link '/etc/nginx/sites-enabled/magento2.conf' do
+	#   to '/etc/nginx/sites-available/magento2.conf'
+	#   action :create
+	#   notifies :restart, resources(:service => 'nginx'), :immediately
+	# end
 
 end
 
