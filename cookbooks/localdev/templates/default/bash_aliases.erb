@@ -1,0 +1,36 @@
+# Helpful aliases
+
+## cd to project directory ##
+alias proj='cd <%= @project_path %>'
+
+## Colorize the ls output ##
+alias ls='ls --color=auto'
+
+## Use a long listing format ##
+alias ll='ls -lhA'
+
+## Show hidden files ##
+alias l.='ls -d .* --color=auto'
+
+## Common typos and help for non-shell-types ##
+alias sl="ls"
+alias cd..="cd .."
+
+## sudo tweaks ##
+alias root='sudo -i'
+alias su='sudo -i'
+
+## Nerd stuff ##
+alias df="df -Tha --total"
+alias du="du -ach | sort -h"
+alias free="free -mt"
+alias histg="history | grep"
+alias ports='netstat -tulanp'
+
+## if user is not root, pass these commands via sudo ##
+if [ $UID -ne 0 ]; then
+    alias reboot='sudo reboot'
+    alias apt-get='sudo apt-get'
+fi
+
+

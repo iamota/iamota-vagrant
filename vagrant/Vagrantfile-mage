@@ -14,6 +14,7 @@ Vagrant.configure('2') do |config|
   # Host Port = your computer & Guest Port = nginx inside vagrant
 
   config.vm.network "forwarded_port", guest: 80, host: %%HTTP_PORT%%, auto_correct: true
+  config.vm.network "forwarded_port", guest: 8888, host: %%MAGE_PORT%%, auto_correct: true
   config.vm.network "forwarded_port", guest: 3306, host: %%MYSQL_PORT%%, auto_correct: true
 
   # Working directory for project
@@ -55,24 +56,25 @@ Vagrant.configure('2') do |config|
 
     # Pass Chef custom JSON
     chef.json = {
-      :localdev => {
-        #:project_path => '/www/current/'
-      },
       :nginx => {
-        :server_name => '%%HTTP_HOST%%'
+        :server_name => '%%HTTP_HOST%%',
       },
       :mysql_server => {
-         # :root_password => 'root'
+         # :root_password => 'root',
       },
       :mysql => {
          # :user     => 'localdev',
          # :password => 'localdev',
-         # :database => 'localdev'
+         # :database => 'localdev',
       },
       :php => {
-        :request_slowlog_timeout => '10s'
-        # :xdebug_halt_level => 'E_WARNING|E_NOTICE|E_USER_WARNING|E_USER_NOTICE'
+        :request_slowlog_timeout => '10s',
+        # :xdebug_halt_level => 'E_WARNING|E_NOTICE|E_USER_WARNING|E_USER_NOTICE',
+      },
+      :magento2 => {
+      	:include_mage => 'yes'
       }
+
     }
 
   end
@@ -83,7 +85,8 @@ Vagrant.configure('2') do |config|
     sudo service php7.0-fpm start
     echo "==========================================================="
     echo "Provisioning Complete. BAM!"
-    echo "Local server address is http://%%HTTP_HOST%%:%%HTTP_PORT%%"
+    echo "WordPress address: http://%%HTTP_HOST%%:%%HTTP_PORT%%"
+    echo "Magento 2 address: http://%%HTTP_HOST%%:%%MAGE_PORT%%"
     %%FINAL_USER_MESSAGE%%
   EOF
 

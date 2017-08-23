@@ -4,6 +4,7 @@ default[:localdev] = {
     :group          => 'www-data',
     :opsworks       => 'false',
     :debug          => 'true',
+    :scripts_path   => '/www/current/scripts',
     :log_path       => '/www/current/logs',
     :wp_content_relative_path => '/files'
 }
@@ -11,7 +12,8 @@ default[:localdev] = {
 default[:nginx] = {
     :server_name    => 'localdev',
     :server_port    => '80',
-    :server_root    => '/www/current/public',
+    :mage_port	    => '8080',
+    :server_root    => '/www/current/public'
 }
 
 default[:mysql_server] = {
@@ -32,7 +34,7 @@ default[:mysql] = {
 default[:php] = {
     :use_windows_syslog     => '0',
     :log_errors             => 'On',
-    :display_errors         => 'Off',
+    :display_errors         => 'On',
     :error_reporting        => 'E_ALL & ~E_DEPRECATED & ~E_STRICT',
 
     :memory_limit           => '256M',
@@ -48,13 +50,33 @@ default[:php] = {
     :xdebug_remote_port     => '9000',
     :xdebug_halt_level      => '0',
 
-    :request_slowlog_timeout => '10s'
+    :request_slowlog_timeout => '15s'
 }
 
 default[:wp] = {
     :theme          => 'mytheme',
     :post_revisions => '15',
     :table_prefix   => 'wp_',
+}
+
+default[:magento2] = {
+	:include		=> 'no',
+    :sys_user       => 'magento',
+    :sys_password   => '$1$7uSfCs9m$EPK3zsmQoe4D69V6uI8yF1', # magento
+    :database       => 'magento',
+    :mage_mode 		=> 'developer',
+	:mage_root 		=> '/www/current/mage',
+    :mage_public    => '/www/current/mage/pub',
+    :mage_port      => '8080',
+	:language		=> 'en_US',
+	:timezone		=> 'America/Vancouver',
+	:currency		=> 'CAD',
+	:backend_frontname => 'admin',
+	:admin_firstname => 'iamota',
+	:admin_lastname => 'iamota',
+	:admin_email    => 'localdev@iamota.com',
+	:admin_user     => 'iamotaadmin',
+	:admin_password => 'iamota1234'
 }
 
 default[:cache] = {

@@ -1,3 +1,8 @@
+upstream mage_fastcgi_backend {
+	server 127.0.0.1:9000;
+}
+
+
 # ===============================================================================================
 # Define Environment variable
 # ===============================================================================================
@@ -16,8 +21,8 @@ server {
 	autoindex 			off;
 	sendfile  			off;
 	charset             utf-8;
-	access_log          <%= @log_path %>/localdev.access.log;
-	error_log           <%= @log_path %>/localdev.error.log;
+	access_log          <%= @log_path %>/magento2.access.log;
+	error_log           <%= @log_path %>/magento2.error.log;
 
 	listen              <%= @server_port %>;
 	server_name         <%= @server_name %> localdev;
@@ -25,58 +30,128 @@ server {
 	root                <%= @server_root %>;
 
 	# ===============================================================================================
-	# W3TOTALCACHE WORDPRESS SINGLE BLOG
+	# MAGENTO CONFIGURATION
 	# ===============================================================================================
+	set $MAGE_MODE 		<%= @mage_mode %>;
+	set $MAGE_ROOT 		<%= @mage_root %>;
 
-	# Use cached or actual file if they exists, otherwise pass request to WordPress
-	location / {
-			try_files <%= @wp_content_relative_path %>/w3tc/pgcache/$cache_uri/_index.html $uri $uri/ /index.php?$args ;
+	add_header 'X-Content-Type-Options' 'nosniff';
+	add_header 'X-XSS-Protection' '1; mode=block';
+
+	location ~* ^/setup($|/) {
+	    root $MAGE_ROOT;
+	    location ~ ^/setup/index.php {
+	        fastcgi_pass   mage_fastcgi_backend;
+	        fastcgi_index  index.php;
+	        fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+	        include        fastcgi_params;
+	    }
+
+	    location ~ ^/setup/(?!pub/). {
+	        deny all;
+	    }
+
+	    location ~ ^/setup/pub/ {
+	        add_header X-Frame-Options "SAMEORIGIN";
+	    }
 	}
 
-	# Base Setup and Security
+	# PHP entry point for update application
+	location ~* ^/update($|/) {
+	    root $MAGE_ROOT;
 
-	# location /shop {
-	#     index index.html index.php;
-	#     try_files $uri $uri/ @handler;
+	    location ~ ^/update/index.php {
+	        fastcgi_split_path_info ^(/update/index.php)(/.+)$;
+	        fastcgi_pass   mage_fastcgi_backend;
+	        fastcgi_index  index.php;
+	        fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+	        fastcgi_param  PATH_INFO        $fastcgi_path_info;
+	        include        fastcgi_params;
+	    }
 
-	#     ## Catch 404s that try_files miss
-	#     if (!-e $request_filename) { rewrite /shop /shop/index.php last; }
+	    # Deny everything but index.php
+	    location ~ ^/update/(?!pub/). {
+	        deny all;
+	    }
 
-	#     ## Store code is defined in administration > Configuration > Manage Stores
-	#     fastcgi_param MAGE_RUN_CODE shop;
-	#     fastcgi_param MAGE_RUN_TYPE website;
+	    location ~ ^/update/pub/ {
+	        add_header X-Frame-Options "SAMEORIGIN";
+	    }
+	}
 
-	#     # By default, only handle fcgi without caching
-	#     # include /mnt/nginx/iamota_components/current/nginx/magento_fcgi.conf;
-	# }
+	location / {
+	    try_files $uri $uri/ /index.php?$args;
+	}
 
-	# 404s are handled by front controller
-	# location @magefc {
-	#     rewrite /shop /shop/index.php;
-	# }
+	location /pub/ {
+	    location ~ ^/pub/media/(downloadable|customer|import|theme_customization/.*\.xml) {
+	        deny all;
+	    }
+	    alias $MAGE_ROOT/pub/;
+	    add_header X-Frame-Options "SAMEORIGIN";
+	}
 
+	location /static/ {
+	    # Uncomment the following line in production mode
+	    # expires max;
 
-	# ===============================================================================================
-	# AWS CLOUDFRONT
-	# ===============================================================================================
+	    # Remove signature of the static files that is used to overcome the browser cache
+	    location ~ ^/static/version {
+	        rewrite ^/static/(version\d*/)?(.*)$ /static/$2 last;
+	    }
 
-	# Dynamic CloudFront Rewrites (Codeship will replace variables during compile)
-	#
-	# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	# !!! IMPORTANT
-	# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	# !!! Add to the CodeShip deploy script the following:
-	# !!!
-	# !!! sed -e "s/\\${AWS_APP_CLOUDFRONT}/${AWS_APP_CLOUDFRONT}/" nginx.conf
-	# !!! sed -e "s/\\${AWS_MAGENTO_CLOUDFRONT}/${AWS_MAGENTO_CLOUDFRONT}/" nginx.conf
-	# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	    location ~* \.(ico|jpg|jpeg|png|gif|svg|js|css|swf|eot|ttf|otf|woff|woff2)$ {
+	        add_header Cache-Control "public";
+	        add_header X-Frame-Options "SAMEORIGIN";
+	        expires +1y;
 
-	# set $AWS_APP_CLOUDFRONT dynamic-deploy-failed;
-	# set $AWS_MAGENTO_CLOUDFRONT dynamic-deploy-failed;
-	# if ($environment != 'local') {
-	#     rewrite "^/wp-content/uploads/(.*)$" https://${AWS_APP_CLOUDFRONT}.cloudfront.net$request_uri? last;
-	#     rewrite "^/shop/media/(.*)$" https://${AWS_MAGENTO_CLOUDFRONT}.cloudfront.net/$1? last;
-	# }
+	        if (!-f $request_filename) {
+	            rewrite ^/static/(version\d*/)?(.*)$ /static.php?resource=$2 last;
+	        }
+	    }
+	    location ~* \.(zip|gz|gzip|bz2|csv|xml)$ {
+	        add_header Cache-Control "no-store";
+	        add_header X-Frame-Options "SAMEORIGIN";
+	        expires    off;
+
+	        if (!-f $request_filename) {
+	           rewrite ^/static/(version\d*/)?(.*)$ /static.php?resource=$2 last;
+	        }
+	    }
+	    if (!-f $request_filename) {
+	        rewrite ^/static/(version\d*/)?(.*)$ /static.php?resource=$2 last;
+	    }
+	    add_header X-Frame-Options "SAMEORIGIN";
+	}
+
+	location /media/ {
+	    try_files $uri $uri/ /get.php?$args;
+
+	    location ~ ^/media/theme_customization/.*\.xml {
+	        deny all;
+	    }
+
+	    location ~* \.(ico|jpg|jpeg|png|gif|svg|js|css|swf|eot|ttf|otf|woff|woff2)$ {
+	        add_header Cache-Control "public";
+	        add_header X-Frame-Options "SAMEORIGIN";
+	        expires +1y;
+	        try_files $uri $uri/ /get.php?$args;
+	    }
+	    location ~* \.(zip|gz|gzip|bz2|csv|xml)$ {
+	        add_header Cache-Control "no-store";
+	        add_header X-Frame-Options "SAMEORIGIN";
+	        expires    off;
+	        try_files $uri $uri/ /get.php?$args;
+	    }
+	    add_header X-Frame-Options "SAMEORIGIN";
+	}
+
+	location /media/customer/ { deny all; }
+
+	location /media/downloadable/ { deny all; }
+
+	location /media/import/ { deny all; }
+
 
 	# ===============================================================================================
 	# RESTRICTIONS
@@ -133,9 +208,9 @@ server {
 	# This order might seem weird - this is attempted to match last if rules below fail.
 	# http://wiki.nginx.org/HttpCoreModule
 	# DISABLED - W3TC HANDLES IT BELOW INSTEAD
-	# location / {
+	#location / {
 	#   try_files $uri $uri/ /index.php?$args;
-	# }
+	#}
 
 	# Add trailing slash to */wp-admin requests.
 	rewrite /wp-admin$ $scheme://$host$uri/ permanent;
@@ -262,20 +337,16 @@ server {
 	}
 
 	# Pass the PHP scripts to FastCGI server listening on the php-fpm socket
-	location ~* \.php$ {
+	location ~ (index|get|static|report|404|503)\.php$ {
+	#location ~* \.php$ {
 		fastcgi_index   index.php;
-        fastcgi_pass    127.0.0.1:9000;
-        include         fastcgi_params;
-        fastcgi_param   SCRIPT_FILENAME    $document_root$fastcgi_script_name;
-        fastcgi_param   SCRIPT_NAME        $fastcgi_script_name;
-		# fastcgi_index   index.php;
-		# fastcgi_buffers 1024 4k;
-		# fastcgi_read_timeout 600s;
-		# fastcgi_connect_timeout 600s;
-		# fastcgi_pass    127.0.0.1:9000;
-		# include         fastcgi_params;
-		# fastcgi_param   SCRIPT_FILENAME    $document_root$fastcgi_script_name;
-		# fastcgi_param   SCRIPT_NAME        $fastcgi_script_name;
+		fastcgi_buffers 1024 4k;
+		fastcgi_read_timeout 600s;
+		fastcgi_connect_timeout 600s;
+		fastcgi_pass    127.0.0.1:9000;
+		include         fastcgi_params;
+		fastcgi_param   SCRIPT_FILENAME    $document_root$fastcgi_script_name;
+		fastcgi_param   SCRIPT_NAME        $fastcgi_script_name;
 	}
 
 }

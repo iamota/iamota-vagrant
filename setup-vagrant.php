@@ -19,16 +19,19 @@
 
 define('DS', 			DIRECTORY_SEPARATOR);
 define('VAGRANT_JSON', 	'vagrant.json');
-define('VAGRANT_TMPL', 	'.local/vagrant/Vagrantfile-template');
+define('VAGRANTFILE_TMPL', 	'.local/vagrant/Vagrantfile-template');
+define('VAGRANTFILE_MAGE', 	'.local/vagrant/Vagrantfile-mage');
 
 $defaults = [
     'project_root'  => '.',
     'http_port'     => '8080',
+    'mage_port'		=> '8081',
     'http_host'     => 'localhost',
     'mysql_port'    => '3306',
     'vbox_memory'   => '1024',
     'vbox_cpus'     => '1',
     'extra_recipes'	=> '',
+    'final_user_message' => '',
 ];
 
 // very complicated.
@@ -45,13 +48,18 @@ $args = array_map(
             array_keys($defaults)
         );
 $shortopts 	= "";
-$longopts  	= ["conf::", "echo", "dry-run"] + $args;
+$longopts  	= ["conf::", "interactive", "echo", "dry-run"] + $args;
 $options 	= getopt($shortopts, $longopts);
 
 /**
  * Print Vagrantfile to STDOUT without user prompts or other meta
  */
 $echo = (isset($options['echo']));
+
+/**
+ * Interactive mode for modifying defaults.
+ */
+$interactive = (isset($options['interactive']));
 
 /**
  * Get config path from either cli argument or readme file in current dir.
@@ -61,9 +69,10 @@ if (isset($options['conf']) && !is_file($options['conf'])) {
     exit(1);
 }
 
+// Load JSON config path..
 $json_path = (isset($options['conf']))
-			? $options['conf']
-			: $cwd . DS . VAGRANT_JSON;
+		? $options['conf'] // ..from commandline argument
+		: $cwd . DS . VAGRANT_JSON; // ..or from default location
 
 /**
  * Parse the vagrant.json config blob
@@ -77,15 +86,16 @@ $json 		= json_decode($json_str, true);
 $config 	= array_merge($defaults, $json);
 
 /**
- * Get config path from either cli argument or readme file in current dir.
+ * Is this a Magento project?
+ * There are additional Chef recipes and other configs needed for Mage.
  */
-$template 	= file_get_contents($cwd.DS.str_replace('/', DS, VAGRANT_TMPL));
+$has_mage = (!empty($json['mage_port']));
 
 /**
  * Prompt users for input and parse by looping over a set of config descriptions
  * and their related config slug.
  */
-if (!$echo) {
+if ($interactive) {
 
 	function parse_input ( $input, $default ) {
 	    return (!empty(trim($input))) ? $input : $default;
@@ -97,20 +107,27 @@ if (!$echo) {
 	fwrite(STDOUT, "\n========================================");
 	fwrite(STDOUT, "\n\n");
 
-	foreach ([
-
+	// Each item below is a prompt for the user.
+	// the keys should match the $defaults array above.
+	$user_prompt = [
 	    'project_root'  => 'Project root dir',
-	    'http_port'     => 'Project HTTP Port',
 	    'http_host'     => 'HTTP Hostname',
+	    'http_port'     => 'Project HTTP Port',
+	    'mage_port' 	=> ($has_mage) ? 'Magento 2 HTTP Port' : false,
 	    'mysql_port'    => 'MySQL Port',
 	    'vbox_memory'   => 'Virtual Box Guest Memory',
 	    'vbox_cpus'     => 'Virtual Box Guest CPUs',
+	];
 
-	  	] as $var => $desc ) {
+	foreach ($user_prompt as $var => $desc ) {
 
-	    fwrite(STDOUT, sprintf('%s [%s]: ', $desc, $config[$var]));
-	    $input = fgets(STDIN);
-		$config[$var] = parse_input($input, $config[$var]);
+		if (empty($desc)) continue; // If value is not truthy, skip this interation.
+
+		$default = (!empty($config[$var])) ? $config[$var] : ''; // blank default
+
+	    fwrite(STDOUT, sprintf('%s [%s]: ', $desc, $default));
+	    $input = trim(fgets(STDIN));
+		$config[$var] = parse_input($input, $default);
 	}
 }
 
@@ -133,6 +150,19 @@ function parse_recipes( $recipes ) {
 $config['extra_recipes'] = parse_recipes($config['extra_recipes']);
 
 /**
+ * Add extra messaging to the Vagrantfile, if needed.
+ */
+$final_user_message = [];
+
+// Configured host isn't localhost or local IP
+if (!in_array($config['http_host'], ['localhost', '127.0.0.1'])) {
+	$final_user_message[] = 'echo "Important: Add the custom hostname to your hosts file. Shorthand: sudo echo \'127.0.0.1 ' . $config['http_host']. '\' >> /etc/hosts"';
+}
+
+// Build the message
+$config['final_user_message'] = implode("\n", $final_user_message);
+
+/**
  * Read Vagrantfile template and replace placeholders with config values.
  * Output to screen.
  */
@@ -141,7 +171,13 @@ $search = array_map(
             array_keys($config)
         );
 $replace = array_values($config);
-$vagrantfile = str_replace($search, $replace, $template);
+
+/**
+ * Get config path from either cli argument or readme file in current dir.
+ */
+$template_path 	= ($has_mage) ? VAGRANTFILE_MAGE : VAGRANTFILE_TMPL;
+$template 		= file_get_contents($cwd.DS.str_replace('/', DS, $template_path));
+$vagrantfile 	= str_replace($search, $replace, $template);
 
 /**
  * If echo-only, output the new Vagrantfile contents to STDOUT and exit
@@ -152,12 +188,15 @@ if ($echo) {
 }
 
 /**
- * Otherwise output the new Vagrantfile contents + helper info to STDOUT
+ * Otherwise, if this is an interactive session, output the new Vagrantfile
+ * contents + helper info to STDOUT.
  */
-fwrite(STDOUT, "\n== New Vagrantfile =========================================");
-fwrite(STDOUT, "\n\n".$vagrantfile);
-fwrite(STDOUT, "\n== End of Vagrantfile ======================================");
-fwrite(STDOUT, "\n");
+if ($interactive) {
+	fwrite(STDOUT, "\n== New Vagrantfile =========================================");
+	fwrite(STDOUT, "\n\n".$vagrantfile);
+	fwrite(STDOUT, "\n== End of Vagrantfile ======================================");
+	fwrite(STDOUT, "\n");
+}
 
 /**
  * Dry-run creation of Vagrant file outputs it to screen.
@@ -167,17 +206,22 @@ if (isset($options['dry-run'])) {
     exit(0);
 }
 
+// Output path for new Vagrantfile
 $output = $cwd . DS . 'Vagrantfile';
 
+// Check if we can actually write the file.
 if (file_exists($output) && !is_writable($output)) {
     fwrite(STDERR, "ERROR: Vagrantfile cannot be written\n");
     exit(1);
 }
 
-fwrite(STDOUT, "\nGenerating Vagrantfile ...\nOuput path: `{$output}`");
+// Helpful messaging..
+fwrite(STDOUT, "Writing `{$output}`");
 
+// Output file..
 file_put_contents($output, $vagrantfile);
 
-fwrite(STDOUT, "\nComplete!\n\nYou may now run `vagrant up` to start your instance.\n");
+// Done!
+fwrite(STDOUT, "\nComplete! You may now run `vagrant up` to start your instance.\n");
 
 exit(0); // Success!
