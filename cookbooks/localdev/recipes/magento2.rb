@@ -80,14 +80,14 @@ template "#{node[:magento2][:mage_root]}/scripts/mage_setup_command.sh" do
     :mage_root          => node[:magento2][:mage_root],
     :port               => node[:magento2][:mage_port],
     :backend_frontname  => node[:magento2][:backend_frontname],
-    :language			=> node[:magento2][:language],
-    :timezone			=> node[:magento2][:timezone],
-    :currency			=> node[:magento2][:currency],
+    :language           => node[:magento2][:language],
+    :timezone           => node[:magento2][:timezone],
+    :currency           => node[:magento2][:currency],
     :admin_lastname     => node[:magento2][:admin_lastname],
-    :admin_firstname	=> node[:magento2][:admin_firstname],
-    :admin_email		=> node[:magento2][:admin_email],
-    :admin_user			=> node[:magento2][:admin_user],
-    :admin_password		=> node[:magento2][:admin_password]
+    :admin_firstname    => node[:magento2][:admin_firstname],
+    :admin_email        => node[:magento2][:admin_email],
+    :admin_user         => node[:magento2][:admin_user],
+    :admin_password     => node[:magento2][:admin_password]
   })
   action :create
 end
