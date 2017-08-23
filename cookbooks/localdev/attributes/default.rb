@@ -4,6 +4,7 @@ default[:localdev] = {
     :group          => 'www-data',
     :opsworks       => 'false',
     :debug          => 'true',
+    :scripts_path   => '/www/current/scripts',
     :log_path       => '/www/current/logs',
     :wp_content_relative_path => '/files'
 }

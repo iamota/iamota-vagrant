@@ -18,6 +18,13 @@ directory "#{node[:localdev][:project_path]}" do
   action :create
 end
 
+directory "#{node[:localdev][:scripts_path]}" do
+  owner node[:localdev][:owner]
+  group node[:localdev][:group]
+  mode '0777'
+  action :create
+end
+
 # Install some basics
 [ 'language-pack-en', # Fix annoying locale issue
   'unzip',
