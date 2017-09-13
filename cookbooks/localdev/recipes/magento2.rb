@@ -2,14 +2,7 @@
 # Cookbook Name:: localdev
 # Recipe:: magento2
 #
-# Copyright (c) 2016 iamota, All Rights Reserved.
-
-# Install Magento 2 packages
-# [ '' ].each do |p|
-#     package p do
-#         action :install
-#     end
-# end
+# Copyright (c) 2017 iamota, All Rights Reserved.
 
 user "#{node[:magento2][:sys_user]}" do
   comment 'Magento User'
@@ -32,11 +25,6 @@ directory "#{node[:magento2][:mage_root]}" do
   action :create
 end
 
-# directory "#{node[:magento2][:mage_root]}/var" do
-#   recursive true
-#   action :delete
-# end
-
 execute 'Create database' do
   command "mysql -e 'CREATE DATABASE IF NOT EXISTS `#{node[:magento2][:database]}`'"
 end
@@ -48,7 +36,7 @@ template '/etc/nginx/sites-available/magento2.conf' do
   mode '0755'
   variables({
     :server_name    => node[:nginx][:server_name],
-    :server_port    => node[:magento2][:mage_port],
+    :server_port    => node[:nginx][:server_port],
     :server_root    => node[:magento2][:mage_public],
     :mage_root      => node[:magento2][:mage_root],
     :mage_mode      => node[:magento2][:mage_mode],
