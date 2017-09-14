@@ -4,6 +4,7 @@
 #
 # Copyright (c) 2017 iamota, All Rights Reserved.
 
+# Create Magento 2 user
 user "#{node[:magento2][:sys_user]}" do
   comment 'Magento User'
   manage_home true
@@ -12,23 +13,32 @@ user "#{node[:magento2][:sys_user]}" do
   password node[:magento2][:sys_password]
 end
 
+# Create Magento 2 group
 group 'www-data' do
   action :modify
   members node[:magento2][:sys_user]
   append true
 end
 
-directory "#{node[:magento2][:mage_root]}" do
-  owner node[:localdev][:owner]
-  group node[:localdev][:group]
-  mode '0777'
-  action :create
-end
+# Create the MAGE_ROOT directory, if needed.
+# directory "#{node[:magento2][:mage_root]}" do
+#   owner node[:localdev][:owner]
+#   group node[:localdev][:group]
+#   mode '0777'
+#   action :create
+# end
 
 execute 'Create database' do
   command "mysql -e 'CREATE DATABASE IF NOT EXISTS `#{node[:magento2][:database]}`'"
 end
 
+# Delete existing localdev.conf file, which will be replaced with the magento conf below.
+file "#{node[:nginx][:conf_enabled]}" do
+  action :delete
+  notifies :restart, 'service[nginx]', :immediately
+end
+
+# Create magento2.conf file from template.
 template '/etc/nginx/sites-available/magento2.conf' do
   source 'nginx-mage2.conf.erb'
   owner 'root'
@@ -49,7 +59,7 @@ end
 link '/etc/nginx/sites-enabled/magento2.conf' do
   to '/etc/nginx/sites-available/magento2.conf'
   action :create
-  notifies :restart, resources(:service => 'nginx'), :immediately
+  notifies :restart, 'service[nginx]', :immediately
 end
 
 

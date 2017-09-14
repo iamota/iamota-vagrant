@@ -24,7 +24,7 @@ define('VAGRANTFILE_TMPL', 	'.local/templates/Vagrantfile.tmpl');
 
 $defaults = [
     'project_root'  => '.',
-    'http_port'     => '?',
+    'http_port'     => '',
     'http_host'     => 'localhost',
     'mysql_port'    => '3306',
     'vbox_memory'   => '1024',

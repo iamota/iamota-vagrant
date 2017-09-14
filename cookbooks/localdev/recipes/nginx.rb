@@ -20,7 +20,7 @@ link "/etc/nginx/sites-enabled/default" do
 end
 
 # Add local server nginx config from chef template
-template '/etc/nginx/sites-available/localdev.conf' do
+template "#{node[:nginx][:conf_available]}" do
   source 'nginx.conf.erb'
   owner 'root'
   group 'root'
@@ -36,8 +36,8 @@ template '/etc/nginx/sites-available/localdev.conf' do
 end
 
 # Enable localdev nginx conf
-link '/etc/nginx/sites-enabled/localdev.conf' do
-  to '/etc/nginx/sites-available/localdev.conf'
+link "#{node[:nginx][:conf_enabled]}" do
+  to "#{node[:nginx][:conf_available]}"
   action :create
   notifies :restart, resources(:service => 'nginx'), :immediately
 end

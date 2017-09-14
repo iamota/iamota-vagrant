@@ -4,7 +4,7 @@ default[:localdev] = {
     :group          => 'www-data',
     :opsworks       => 'false',
     :debug          => 'true',
-    :scripts_path   => '/www/current/scripts',
+    :scripts_path   => '/www/current/tools',
     :log_path       => '/www/current/logs',
     :wp_content_relative_path => '/files'
 }
@@ -12,8 +12,9 @@ default[:localdev] = {
 default[:nginx] = {
     :server_name    => 'localdev',
     :server_port    => '80',
-    :mage_port	    => '8080',
-    :server_root    => '/www/current/public'
+    :server_root    => '/www/current/public',
+    :conf_available => '/etc/nginx/sites-available/localdev.conf',
+    :conf_enabled   => '/etc/nginx/sites-enabled/localdev.conf'
 }
 
 default[:mysql_server] = {
@@ -65,7 +66,7 @@ default[:magento2] = {
     :sys_password   => '$1$7uSfCs9m$EPK3zsmQoe4D69V6uI8yF1', # magento
     :database       => 'magento',
     :mage_mode 		=> 'developer',
-	:mage_root 		=> '/www/current/',
+	:mage_root 		=> '/www/current',
     :mage_public    => '/www/current/pub',
     :mage_port      => '8080',
 	:language		=> 'en_US',
