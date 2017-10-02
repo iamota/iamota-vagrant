@@ -55,9 +55,6 @@ Vagrant.configure('2') do |config|
 
     # Pass Chef custom JSON
     chef.json = {
-      :localdev => {
-        #:project_path => '/www/current/'
-      },
       :nginx => {
         :server_name => '%%HTTP_HOST%%'
       },
@@ -78,9 +75,9 @@ Vagrant.configure('2') do |config|
   end
 
   config.vm.provision :shell, privileged: false, run: "always", inline: <<-EOF
-    sudo service mysql start
-    sudo service nginx start
-    sudo service php7.0-fpm start
+    sudo service mysql restart
+    sudo service nginx restart
+    sudo service php7.0-fpm restart
     echo "==========================================================="
     echo "Provisioning Complete. BAM!"
     echo "Local server address is http://%%HTTP_HOST%%:%%HTTP_PORT%%"

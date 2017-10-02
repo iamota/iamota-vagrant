@@ -17,15 +17,14 @@
  *      Optional. Path to the readme file
  */
 
-define('DS', 			DIRECTORY_SEPARATOR);
-define('VAGRANT_JSON', 	'vagrant.json');
-define('VAGRANTFILE_TMPL', 	'.local/vagrant/Vagrantfile-template');
-define('VAGRANTFILE_MAGE', 	'.local/vagrant/Vagrantfile-mage');
+define('DS', 				DIRECTORY_SEPARATOR);
+define('VAGRANT_JSON', 		'vagrant.json');
+define('VAGRANTFILE_TMPL', 	'.local/templates/Vagrantfile.tmpl');
+
 
 $defaults = [
     'project_root'  => '.',
-    'http_port'     => '8080',
-    'mage_port'		=> '8081',
+    'http_port'     => '',
     'http_host'     => 'localhost',
     'mysql_port'    => '3306',
     'vbox_memory'   => '1024',
@@ -86,12 +85,6 @@ $json 		= json_decode($json_str, true);
 $config 	= array_merge($defaults, $json);
 
 /**
- * Is this a Magento project?
- * There are additional Chef recipes and other configs needed for Mage.
- */
-$has_mage = (!empty($json['mage_port']));
-
-/**
  * Prompt users for input and parse by looping over a set of config descriptions
  * and their related config slug.
  */
@@ -113,7 +106,6 @@ if ($interactive) {
 	    'project_root'  => 'Project root dir',
 	    'http_host'     => 'HTTP Hostname',
 	    'http_port'     => 'Project HTTP Port',
-	    'mage_port' 	=> ($has_mage) ? 'Magento 2 HTTP Port' : false,
 	    'mysql_port'    => 'MySQL Port',
 	    'vbox_memory'   => 'Virtual Box Guest Memory',
 	    'vbox_cpus'     => 'Virtual Box Guest CPUs',
@@ -175,8 +167,7 @@ $replace = array_values($config);
 /**
  * Get config path from either cli argument or readme file in current dir.
  */
-$template_path 	= ($has_mage) ? VAGRANTFILE_MAGE : VAGRANTFILE_TMPL;
-$template 		= file_get_contents($cwd.DS.str_replace('/', DS, $template_path));
+$template 		= file_get_contents($cwd.DS.str_replace('/', DS, VAGRANTFILE_TMPL));
 $vagrantfile 	= str_replace($search, $replace, $template);
 
 /**
