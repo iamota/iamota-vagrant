@@ -94,7 +94,6 @@ Under the `extras` section, modify to reflect the following:
 
 	{
 		"http_port": "8080",
-		"mage_port": "8081",
 		"extra_recipes": ""
 	}
 
