@@ -63,7 +63,7 @@ link '/etc/nginx/sites-enabled/magento2.conf' do
 end
 
 
-template "#{node[:magento2][:mage_root]}/scripts/mage_setup_command.sh" do
+template "#{node[:magento2][:mage_root]}/tools/mage_setup_command.sh" do
   source 'mage_setup_command.erb'
   mode '0755'
   variables ({
