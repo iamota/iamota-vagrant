@@ -62,6 +62,8 @@ Once you've completed the Vagrantfile generation, you can set up your vagrant in
 
 If you are setting up a **brand new environment**, follow these steps below.
 
+* [Project Port Assignment spreadsheet](https://docs.google.com/a/iamota.com/spreadsheets/d/1pFm1RVFnsfQsNyC2YpmfQZtubdgDO7mOfymduogZDRA/edit?usp=sharing)
+
 **Step 1:** Add/modify `composer.json` file to contain the following:
 
 Under `repositories` section, add:
@@ -92,7 +94,6 @@ Under the `extras` section, modify to reflect the following:
 
 	{
 		"http_port": "8080",
-		"mage_port": "8081",
 		"extra_recipes": ""
 	}
 
