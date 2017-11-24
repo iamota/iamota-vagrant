@@ -29,6 +29,7 @@ template "#{node[:nginx][:conf_available]}" do
     :server_root   => node[:nginx][:server_root],
     :server_name   => node[:nginx][:server_name],
     :server_port   => node[:nginx][:server_port],
+    :client_max_body_size => node[:nginx][:client_max_body_size],
     :log_path      => node[:localdev][:log_path],
     :wp_content_relative_path => node[:localdev][:wp_content_relative_path],
   })
@@ -40,36 +41,5 @@ link "#{node[:nginx][:conf_enabled]}" do
   to "#{node[:nginx][:conf_available]}"
   action :create
   notifies :restart, resources(:service => 'nginx'), :immediately
-end
-
-# =================
-# Magento
-# =================
-
-if node[:magento2][:include_mage] == 'yes'
-
-	# template '/etc/nginx/sites-available/magento2.conf' do
-	#   source 'nginx-mage2.conf.erb'
-	#   owner 'root'
-	#   group 'root'
-	#   mode '0755'
-	#   variables({
-	#   	:server_root  => node[:nginx][:server_root],
- #    	:server_name 	=> node[:nginx][:server_name],
- #    	:server_port 	=> node[:nginx][:mage_port],
- #    	:log_path     => node[:localdev][:log_path],
-	# 		:mage_root		=> node[:magento2][:mage_root],
-	# 		:mage_mode		=> node[:magento2][:mage_mode],
-	#   })
-	#   action :create
-	# end
-
-	# # Enable localdev nginx conf
-	# link '/etc/nginx/sites-enabled/magento2.conf' do
-	#   to '/etc/nginx/sites-available/magento2.conf'
-	#   action :create
-	#   notifies :restart, resources(:service => 'nginx'), :immediately
-	# end
-
 end
 

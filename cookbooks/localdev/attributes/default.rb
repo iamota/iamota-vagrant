@@ -14,7 +14,8 @@ default[:nginx] = {
     :server_port    => '80',
     :server_root    => '/www/current/public',
     :conf_available => '/etc/nginx/sites-available/localdev.conf',
-    :conf_enabled   => '/etc/nginx/sites-enabled/localdev.conf'
+    :conf_enabled   => '/etc/nginx/sites-enabled/localdev.conf',
+    :client_max_body_size => '100m'
 }
 
 default[:mysql_server] = {

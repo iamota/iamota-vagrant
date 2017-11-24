@@ -24,6 +24,8 @@ server {
 
 	root                <%= @server_root %>;
 
+	client_max_body_size <%= @client_max_body_size %>;
+
 	# ===============================================================================================
 	# W3TOTALCACHE WORDPRESS SINGLE BLOG
 	# ===============================================================================================
@@ -32,51 +34,6 @@ server {
 	location / {
 			try_files <%= @wp_content_relative_path %>/w3tc/pgcache/$cache_uri/_index.html $uri $uri/ /index.php?$args ;
 	}
-
-	# Base Setup and Security
-
-	# location /shop {
-	#     index index.html index.php;
-	#     try_files $uri $uri/ @handler;
-
-	#     ## Catch 404s that try_files miss
-	#     if (!-e $request_filename) { rewrite /shop /shop/index.php last; }
-
-	#     ## Store code is defined in administration > Configuration > Manage Stores
-	#     fastcgi_param MAGE_RUN_CODE shop;
-	#     fastcgi_param MAGE_RUN_TYPE website;
-
-	#     # By default, only handle fcgi without caching
-	#     # include /mnt/nginx/iamota_components/current/nginx/magento_fcgi.conf;
-	# }
-
-	# 404s are handled by front controller
-	# location @magefc {
-	#     rewrite /shop /shop/index.php;
-	# }
-
-
-	# ===============================================================================================
-	# AWS CLOUDFRONT
-	# ===============================================================================================
-
-	# Dynamic CloudFront Rewrites (Codeship will replace variables during compile)
-	#
-	# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	# !!! IMPORTANT
-	# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	# !!! Add to the CodeShip deploy script the following:
-	# !!!
-	# !!! sed -e "s/\\${AWS_APP_CLOUDFRONT}/${AWS_APP_CLOUDFRONT}/" nginx.conf
-	# !!! sed -e "s/\\${AWS_MAGENTO_CLOUDFRONT}/${AWS_MAGENTO_CLOUDFRONT}/" nginx.conf
-	# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-	# set $AWS_APP_CLOUDFRONT dynamic-deploy-failed;
-	# set $AWS_MAGENTO_CLOUDFRONT dynamic-deploy-failed;
-	# if ($environment != 'local') {
-	#     rewrite "^/wp-content/uploads/(.*)$" https://${AWS_APP_CLOUDFRONT}.cloudfront.net$request_uri? last;
-	#     rewrite "^/shop/media/(.*)$" https://${AWS_MAGENTO_CLOUDFRONT}.cloudfront.net/$1? last;
-	# }
 
 	# ===============================================================================================
 	# RESTRICTIONS
