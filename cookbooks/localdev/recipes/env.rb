@@ -1,9 +1,9 @@
 # Replace default www.conf with our chef template
 template "#{node[:localdev][:project_path]}/.env" do
   source 'env.erb'
-  owner node[:localdev]['owner']
-  group node[:localdev]['group']
-  mode '0755'
+  # owner node[:localdev]['owner']
+  # group node[:localdev]['group']
+  # mode '0755'
   variables ({
     :environment        => 'localhost',
 

@@ -11,17 +11,19 @@
 #   action :run
 # end
 
-directory "#{node[:localdev][:project_path]}" do
-  owner node[:localdev][:owner]
-  group node[:localdev][:group]
-  mode '0777'
-  action :create
-end
+# Disabled due to conflict with new NFS mounting approach
+# This wasn't really needed anyway.
+# directory "#{node[:localdev][:project_path]}" do
+#   owner node[:localdev][:owner]
+#   group node[:localdev][:group]
+#   mode '0777'
+#   action :create
+# end
 
 directory "#{node[:localdev][:scripts_path]}" do
-  owner node[:localdev][:owner]
-  group node[:localdev][:group]
-  mode '0777'
+  #owner node[:localdev][:owner]
+  #group node[:localdev][:group]
+  #mode '0777'
   action :create
 end
 
