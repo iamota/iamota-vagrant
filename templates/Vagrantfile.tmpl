@@ -16,13 +16,28 @@ Vagrant.configure('2') do |config|
   config.vm.network "forwarded_port", guest: 80, host: %%HTTP_PORT%%, auto_correct: true
   config.vm.network "forwarded_port", guest: 3306, host: %%MYSQL_PORT%%, auto_correct: true
 
-  # Working directory for project
+  ###
+  # Create mount on guest machine for project files
+  ###
+
+  # On OSX - Use NFS for faster I/O
+  # NFS requires a "host-only network" to connect to the host machine. We are using DHCP for this.
+  config.vm.network "private_network", type: "dhcp"
+
+  # NFS mount directory containing project files.
   config.vm.synced_folder "%%PROJECT_ROOT%%",
                           "/www/current",
                           create: true,
-                          owner: "www-data",
-                          group: "www-data",
-                          mount_options: ["dmode=775", "fmode=664"]
+                          type: "nfs",
+                          mount_options: ['rw', 'vers=3', 'tcp', 'fsc' ,'actimeo=1']
+
+  # On WINDOWS - Use vboxsf shared folder mount.
+  # config.vm.synced_folder "%%PROJECT_ROOT%%",
+  #                        "/www/current",
+  #                        create: true,
+  #                        owner: "www-data",
+  #                        group: "www-data",
+  #                        mount_options: ["dmode=775", "fmode=664"]
 
   # VirtualBox is the hypervisor we are using.
   config.vm.provider "virtualbox" do |vb|
@@ -75,9 +90,7 @@ Vagrant.configure('2') do |config|
   end
 
   config.vm.provision :shell, privileged: false, run: "always", inline: <<-EOF
-    sudo service mysql restart
     sudo service nginx restart
-    sudo service php7.0-fpm restart
     echo "==========================================================="
     echo "Provisioning Complete. BAM!"
     echo "Local server address is http://%%HTTP_HOST%%:%%HTTP_PORT%%"
