@@ -40,6 +40,14 @@ end
     end
 end
 
+# Remove auto-updater which can conflict with NFS installation during vagrant up
+[ 'update-manager' ].each do |p|
+    package p do
+        action :remove
+    end
+end
+
+# Update system MOTD with some helpful information
 template '/etc/motd' do
   source 'motd.erb'
   owner 'root'
@@ -50,6 +58,7 @@ template '/etc/motd' do
   	})
 end
 
+# Create helpful bash aliases
 template '/home/ubuntu/.bash_aliases' do
   source 'bash_aliases.erb'
   variables ({
