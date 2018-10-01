@@ -5,7 +5,7 @@ default[:localdev] = {
     :opsworks       => 'false',
     :debug          => 'true',
     :scripts_path   => '/www/current/tools',
-    :log_path       => '/www/current/logs',
+    :log_path       => '/var/log',
     :wp_content_relative_path => '/wp-content'
 }
 
