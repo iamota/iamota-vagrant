@@ -6,13 +6,13 @@ default[:localdev] = {
     :debug          => 'true',
     :scripts_path   => '/www/current/tools',
     :log_path       => '/var/log',
-    :wp_content_relative_path => '/wp-content'
+    :wp_content_relative_path => '/files'
 }
 
 default[:nginx] = {
     :server_name    => 'localdev',
     :server_port    => '80',
-    :server_root    => '/www/current',
+    :server_root    => '/www/current/public',
     :conf_available => '/etc/nginx/sites-available/localdev.conf',
     :conf_enabled   => '/etc/nginx/sites-enabled/localdev.conf',
     :client_max_body_size => '100m'
