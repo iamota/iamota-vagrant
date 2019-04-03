@@ -1,4 +1,5 @@
 default[:localdev] = {
+    :environment    => 'localhost',
     :project_path   => '/www/current',
     :owner          => 'www-data',
     :group          => 'www-data',
@@ -7,6 +8,7 @@ default[:localdev] = {
     :scripts_path   => '/www/current/tools',
     :log_path       => '/var/log',
     :wp_content_relative_path => '/files'
+
 }
 
 default[:nginx] = {
@@ -15,6 +17,7 @@ default[:nginx] = {
     :server_root    => '/www/current/public',
     :conf_available => '/etc/nginx/sites-available/localdev.conf',
     :conf_enabled   => '/etc/nginx/sites-enabled/localdev.conf',
+    :certificate_path => '/etc/nginx/ssl',
     :client_max_body_size => '100m'
 }
 
@@ -59,6 +62,8 @@ default[:wp] = {
     :theme          => 'mytheme',
     :post_revisions => '15',
     :table_prefix   => 'wp_',
+    :use_https      => 'true',
+    :force_https    => 'true',
 }
 
 default[:magento2] = {

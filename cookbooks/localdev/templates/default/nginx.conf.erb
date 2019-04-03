@@ -19,10 +19,17 @@ server {
 	access_log          <%= @log_path %>/localdev.access.log;
 	error_log           <%= @log_path %>/localdev.error.log;
 
-	listen              <%= @server_port %>;
+    #listen              <%= @server_port %>;
+	listen              <%= @server_port %> ssl;
 	server_name         <%= @server_name %> localdev;
 
 	root                <%= @server_root %>;
+
+    # SSL Configuration
+    ssl_certificate     /etc/nginx/ssl/localdev.crt;
+    ssl_certificate_key /etc/nginx/ssl/localdev.key;
+    ssl_protocols       TLSv1 TLSv1.1 TLSv1.2;
+
 
 	client_max_body_size <%= @client_max_body_size %>;
 

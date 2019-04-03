@@ -19,6 +19,21 @@ link "/etc/nginx/sites-enabled/default" do
   action :delete
 end
 
+# Create certificate path
+directory "#{node[:nginx][:certificate_path]}" do
+  owner node[:localdev][:owner]
+  group node[:localdev][:group]
+  mode '0777'
+  action :create
+end
+
+# Create SSL certificate locally
+execute 'Create HTTPS certificate' do
+  command "openssl req -new -nodes -x509 -subj \"/C=CA/ST=BC/L=Vancouver/O=IT/CN=localhost\" -days 3650 -keyout #{node[:nginx][:certificate_path]}/localdev.key -out #{node[:nginx][:certificate_path]}/localdev.crt -extensions v3_ca"
+  action :run
+  notifies :restart, resources(:service => 'nginx'), :immediately
+end
+
 # Add local server nginx config from chef template
 template "#{node[:nginx][:conf_available]}" do
   source 'nginx.conf.erb'
