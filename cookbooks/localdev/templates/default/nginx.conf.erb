@@ -33,6 +33,37 @@ server {
 
 	client_max_body_size <%= @client_max_body_size %>;
 
+    # ===============================================================================================
+    # Live Reload Custom Setup
+    # ===============================================================================================
+
+    location = /livereload.js {
+        proxy_pass http://10.0.2.2:35729/livereload.js;
+        proxy_set_header X-Real-IP  $remote_addr;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header Host $host;
+        proxy_redirect off;
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+
+    }
+
+    location = /livereload {
+        proxy_pass http://10.0.2.2:35729/livereload;
+        proxy_set_header X-Real-IP  $remote_addr;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header Host $host;
+        proxy_redirect off;
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+
+    }
+
+
 	# ===============================================================================================
 	# W3TOTALCACHE WORDPRESS SINGLE BLOG
 	# ===============================================================================================
