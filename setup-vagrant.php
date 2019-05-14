@@ -17,10 +17,10 @@
  *      Optional. Path to the readme file
  */
 
-define('DS', 				DIRECTORY_SEPARATOR);
-define('VAGRANT_JSON', 		'vagrant.json');
-define('VAGRANTFILE_TMPL', 	'.local/templates/Vagrantfile.tmpl');
-
+define('DS',                DIRECTORY_SEPARATOR);
+define('VAGRANT_JSON',      'vagrant.json');
+define('VAGRANTFILE_TMPL',  '.local/vagrant/Vagrantfile.tmpl');
+define('VAGRANTFILE_CHEF',  '.local/vagrant/Vagrantfile.chef');
 
 $defaults = [
     'project_root'  => '.',
