@@ -55,6 +55,12 @@ Vagrant.configure('2') do |config|
   # some recipes to the runlist.
   config.vm.provision "chef_solo" do |chef|
 
+    # We are required to explicitly accept agreement in Chef 15+
+    # Unfortunately it's not working for our version on Chef, so
+    # we use the Vagrantfile.chef to set the option.
+    #chef.arguments = "--chef-license accept"
+    chef.custom_config_path = "./local/vagrant/Vagrantfile.chef"
+
     # Storing all Chef provisioning files in .local
     chef.cookbooks_path = ".local/cookbooks"
     #chef.data_bags_path = ".local/data_bags"
