@@ -59,7 +59,7 @@ Vagrant.configure('2') do |config|
     # Unfortunately it's not working for our version on Chef, so
     # we use the Vagrantfile.chef to set the option.
     #chef.arguments = "--chef-license accept"
-    chef.custom_config_path = "./local/vagrant/Vagrantfile.chef"
+    chef.custom_config_path = ".local/vagrant/Vagrantfile.chef"
 
     # Storing all Chef provisioning files in .local
     chef.cookbooks_path = ".local/cookbooks"
